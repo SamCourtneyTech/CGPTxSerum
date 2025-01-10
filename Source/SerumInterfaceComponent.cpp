@@ -30,11 +30,37 @@ SerumInterfaceComponent::~SerumInterfaceComponent()
 
 void SerumInterfaceComponent::loadSerum(const juce::File& pluginPath)
 {
-    if (!pluginPath.existsAsFile()) // Ensure the file exists
+    if (!pluginPath.exists()) // Check if the path exists at all
     {
-        DBG("Plugin file not found!");
+        DBG("Plugin path does not exist: " << pluginPath.getFullPathName());
         return;
     }
+
+    if (pluginPath.isDirectory())
+    {
+        DBG("Plugin path is a directory: " << pluginPath.getFullPathName());
+    }
+    else if (pluginPath.existsAsFile())
+    {
+        DBG("Plugin path is a file: " << pluginPath.getFullPathName());
+    }
+    else
+    {
+        DBG("Plugin path is neither a valid file nor directory: " << pluginPath.getFullPathName());
+        return;
+    }
+
+    juce::AudioProcessor::BusesLayout layout;
+
+    // Check if the layout is supported
+    if (!isBusesLayoutSupported(layout))
+    {
+        DBG("Unsupported bus layout");
+        return;
+    }
+
+    DBG("Bus layout is supported, proceeding to load plugin.");
+
 
     double sampleRate = parentProcessor.getSampleRate();
     int blockSize = 512; //parentProcessor.getBlockSize();
@@ -73,7 +99,67 @@ void SerumInterfaceComponent::loadSerum(const juce::File& pluginPath)
     DBG("Category: " << pluginDescription.category);
     DBG("Is Instrument: " << (pluginDescription.isInstrument ? "true" : "false"));
 
+
+    std::unique_ptr<juce::AudioPluginInstance> instance;
+    //juce::String errorMessage;
+
+    // Attempt to create the plugin instance directly
+    instance = formatManager.createPluginInstance(pluginDescription, sampleRate, blockSize, errorMessage);
+
+    if (instance == nullptr)
+    {
+
+        DBG("Error loading plugin: " << errorMessage);
+        return;
+    }
+
+    DBG("Plugin instance created!");
+    serumInstance = std::move(instance);
+
+    // Create the plugin editor
+    serumEditor.reset(serumInstance->createEditorIfNeeded());
+    if (serumEditor != nullptr)
+    {
+        DBG("Editor created successfully!");
+        addAndMakeVisible(serumEditor.get());
+        resized();
+    }
+    else
+    {
+        DBG("Failed to create plugin editor.");
+    }
+
+    /*
+    std::function<void(std::unique_ptr<juce::AudioPluginInstance>, const juce::String&)> callback =
+        [this](std::unique_ptr<juce::AudioPluginInstance> instance, const juce::String& error)
+        {
+            if (instance == nullptr)
+            {
+                DBG("Error loading plugin: " << error);
+                return;
+            }
+
+            DBG("Plugin instance created!");
+            serumInstance = std::move(instance);
+
+            serumEditor.reset(serumInstance->createEditorIfNeeded());
+            if (serumEditor != nullptr)
+            {
+                DBG("Editor created successfully!");
+                addAndMakeVisible(serumEditor.get());
+                resized();
+            }
+            else
+            {
+                DBG("Failed to create plugin editor.");
+            }
+        };
+
+    formatManager.createPluginInstanceAsync(pluginDescription, sampleRate, blockSize, callback);
+    */
+
     // Load the plugin instance
+    /*
     formatManager.createPluginInstanceAsync(
         pluginDescription,
         sampleRate,
@@ -101,6 +187,7 @@ void SerumInterfaceComponent::loadSerum(const juce::File& pluginPath)
                 DBG("Failed to create plugin editor.");
             }
         });
+        */
 }
 
 
@@ -115,8 +202,10 @@ void SerumInterfaceComponent::resized()
         serumEditor->setBounds(getLocalBounds()); // Make Serum's UI fit the tab
     }
 }
+
 bool SerumInterfaceComponent::isBusesLayoutSupported(const juce::AudioProcessor::BusesLayout& layouts) const
 {
+
     const auto& mainOutput = layouts.getMainOutputChannelSet();
     const auto& mainInput = layouts.getMainInputChannelSet();
 

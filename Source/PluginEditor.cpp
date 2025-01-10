@@ -29,7 +29,7 @@ CGPTxSerumAudioProcessorEditor::CGPTxSerumAudioProcessorEditor(CGPTxSerumAudioPr
 
     // TEST: Load Serum with a hardcoded path
     //serumInterface.loadSerum(juce::File("C:/Program Files/Common Files/VST3/Serum.vst3")); //Potentially restricted
-    serumInterface.loadSerum(juce::File("C:/Program Files/Common Files/VST3/Omnisphere.vst3")); //Another synth
+    serumInterface.loadSerum(juce::File("C:/Program Files/Common Files/VST3/Surge Synth Team/Surge XT.vst3")); //Another synth
 
     //serumInterface.loadSerum(juce::File("C:/OTT/OTT.vst3")); //Shouldn't be restricted
 
