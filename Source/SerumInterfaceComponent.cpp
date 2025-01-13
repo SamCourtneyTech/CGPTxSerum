@@ -1,6 +1,8 @@
 #include "SerumInterfaceComponent.h"
 #include <juce_audio_processors/juce_audio_processors.h>
 
+
+
 void SerumInterfaceComponent::paint(juce::Graphics& g)
 {
     g.fillAll(juce::Colours::darkgrey); // Fill the background with a color
@@ -24,8 +26,10 @@ SerumInterfaceComponent::SerumInterfaceComponent(juce::AudioProcessor& processor
 SerumInterfaceComponent::~SerumInterfaceComponent()
 {
     const juce::ScopedLock lock(criticalSection); // Ensure thread-safe cleanup
-    serumInstance.reset();
-    serumEditor.reset();
+    serumEditor = nullptr; 
+    serumInstance = nullptr;
+    //serumInstance.reset();
+    //serumEditor.reset();
 }
 
 void SerumInterfaceComponent::loadSerum(const juce::File& pluginPath)
@@ -63,7 +67,7 @@ void SerumInterfaceComponent::loadSerum(const juce::File& pluginPath)
 
 
     double sampleRate = parentProcessor.getSampleRate();
-    int blockSize = 512; //parentProcessor.getBlockSize();
+    int blockSize = 32; //parentProcessor.getBlockSize();
 
     DBG("Sample Rate: " << sampleRate);
     DBG("Block Size: " << blockSize);
@@ -75,30 +79,60 @@ void SerumInterfaceComponent::loadSerum(const juce::File& pluginPath)
         return;
     }
 
+    //juce::AudioPluginFormatManager formatManager;
+    juce::KnownPluginList pluginList;
     juce::PluginDescription pluginDescription;
     juce::String errorMessage;
+    /*
+    bool success = formatManager.getDefaultFormat()->getPluginDescription(
+        pluginPath, pluginDescription); 
+    */
+    
+    juce::OwnedArray<juce::PluginDescription> descriptions;
+    if (!pluginList.scanAndAddFile(pluginPath.getFullPathName(),
+        true, // dontRescanIfAlreadyInList
+        descriptions,
+        *format)) // Pass the format for scanning
+    {
+        DBG("Failed to scan and add plugin: " << pluginPath.getFullPathName());
+        return;
+    }
+    if (descriptions.isEmpty())
+    {
+        DBG("No plugin descriptions found!");
+        return;
+    }
+        auto types = pluginList.getTypes();
+        pluginDescription = *descriptions.getFirst();
 
+  
 
-    pluginDescription.fileOrIdentifier = pluginPath.getFullPathName();
-    pluginDescription.pluginFormatName = format->getName();
-    pluginDescription.name = pluginPath.getFileNameWithoutExtension(); // Set the plugin name
-    pluginDescription.manufacturerName = "Unknown"; // Default value
-    pluginDescription.version = "1.0.0"; // Default version
-    pluginDescription.category = "Effect"; // Assume category
-    pluginDescription.isInstrument = false; // Default assumption
-    pluginDescription.uniqueId = 0; // No unique ID available
+    //pluginDescription.fileOrIdentifier = pluginPath.getFullPathName();
+    //pluginDescription.pluginFormatName = format->getName();
+    //pluginDescription.name = pluginPath.getFileNameWithoutExtension(); // Set the plugin name
+    //pluginDescription.manufacturerName = "Unknown"; // Default value
+    //pluginDescription.version = "Unknown"; // Default version
+   // pluginDescription.category = "Unknown"; // Assume category
+   // pluginDescription.isInstrument = true; // Default assumption
+    //pluginDescription.uniqueId = 0; // No unique ID available
 
 
     // Debug output for PluginDescription
-    DBG("Plugin Name: " << pluginDescription.name);
-    DBG("Manufacturer: " << pluginDescription.manufacturerName);
-    DBG("File Path: " << pluginDescription.fileOrIdentifier);
-    DBG("Plugin Format: " << pluginDescription.pluginFormatName);
-    DBG("Version: " << pluginDescription.version);
-    DBG("Unique ID: " << pluginDescription.uniqueId);
-    DBG("Category: " << pluginDescription.category);
-    DBG("Is Instrument: " << (pluginDescription.isInstrument ? "true" : "false"));
-
+        if (!pluginDescription.fileOrIdentifier.isEmpty())
+        {
+            DBG("Plugin Name: " << pluginDescription.name);
+            DBG("Manufacturer: " << pluginDescription.manufacturerName);
+            DBG("File Path: " << pluginDescription.fileOrIdentifier);
+            DBG("Plugin Format: " << pluginDescription.pluginFormatName);
+            DBG("Version: " << pluginDescription.version);
+            DBG("Unique ID: " << pluginDescription.uniqueId);
+            DBG("Category: " << pluginDescription.category);
+            DBG("Is Instrument: " << (pluginDescription.isInstrument ? "true" : "false"));
+        }
+        else
+        {
+            DBG("Plugin description is invalid.");
+        }
 
     std::unique_ptr<juce::AudioPluginInstance> instance;
     //juce::String errorMessage;
@@ -129,65 +163,7 @@ void SerumInterfaceComponent::loadSerum(const juce::File& pluginPath)
         DBG("Failed to create plugin editor.");
     }
 
-    /*
-    std::function<void(std::unique_ptr<juce::AudioPluginInstance>, const juce::String&)> callback =
-        [this](std::unique_ptr<juce::AudioPluginInstance> instance, const juce::String& error)
-        {
-            if (instance == nullptr)
-            {
-                DBG("Error loading plugin: " << error);
-                return;
-            }
-
-            DBG("Plugin instance created!");
-            serumInstance = std::move(instance);
-
-            serumEditor.reset(serumInstance->createEditorIfNeeded());
-            if (serumEditor != nullptr)
-            {
-                DBG("Editor created successfully!");
-                addAndMakeVisible(serumEditor.get());
-                resized();
-            }
-            else
-            {
-                DBG("Failed to create plugin editor.");
-            }
-        };
-
-    formatManager.createPluginInstanceAsync(pluginDescription, sampleRate, blockSize, callback);
-    */
-
-    // Load the plugin instance
-    /*
-    formatManager.createPluginInstanceAsync(
-        pluginDescription,
-        sampleRate,
-        blockSize,
-        [this](std::unique_ptr<juce::AudioPluginInstance> instance, const juce::String& error)
-        {
-            if (instance == nullptr)
-            {
-                DBG("Error loading plugin: " << error);
-                return;
-            }
-
-            DBG("Plugin instance created!");
-            serumInstance = std::move(instance);
-
-            serumEditor.reset(serumInstance->createEditorIfNeeded());
-            if (serumEditor != nullptr)
-            {
-                DBG("Editor created successfully!");
-                addAndMakeVisible(serumEditor.get());
-                resized();
-            }
-            else
-            {
-                DBG("Failed to create plugin editor.");
-            }
-        });
-        */
+   
 }
 
 
