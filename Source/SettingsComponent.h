@@ -15,9 +15,18 @@ private:
     juce::Label pathLabel;
     juce::TextEditor pathInput;
     juce::TextButton browseButton;
+    std::unique_ptr<juce::FileChooser> fileChooser;
 
-    // Callback for browse button
+    // Default plugin path
+    juce::String defaultPath;
+
+    // juce::ApplicationProperties for persistence
+    juce::ApplicationProperties applicationProperties;
+
+    // Path persistence functions
     void browseForPath();
+    void savePath(const juce::String& path);
+    juce::String loadSavedPath();
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(SettingsComponent)
 };
