@@ -19,7 +19,7 @@ CGPTxSerumAudioProcessorEditor::CGPTxSerumAudioProcessorEditor(CGPTxSerumAudioPr
 {
     // Make sure that before the constructor has finished, you've set the
     // editor's size to whatever you need it to be.
-    setSize (960, 540);
+    setSize (902, 760);
     tabs.addTab("ChatGPT", juce::Colours::lightblue, &chatBar, false);
     tabs.addTab("Serum", juce::Colours::lightgreen, &serumInterface, false);
     tabs.addTab("Settings", juce::Colours::lightcoral, &settings, false);
@@ -28,8 +28,8 @@ CGPTxSerumAudioProcessorEditor::CGPTxSerumAudioProcessorEditor(CGPTxSerumAudioPr
     addAndMakeVisible(tabs);
 
     // TEST: Load Serum with a hardcoded path
-    //serumInterface.loadSerum(juce::File("C:/Program Files/Common Files/VST3/Serum.vst3")); //Potentially restricted
-    serumInterface.loadSerum(juce::File("C:/Program Files/Common Files/VST3/Surge Synth Team/Surge XT.vst3")); //Another synth
+    serumInterface.loadSerum(juce::File("C:/Program Files/Common Files/VST3/Serum.vst3")); //Potentially restricted
+    //serumInterface.loadSerum(juce::File("C:/Program Files/Common Files/VST3/Surge Synth Team/Surge XT.vst3")); //Another synth
 
     //serumInterface.loadSerum(juce::File("C:/OTT/OTT.vst3")); //Shouldn't be restricted
 
