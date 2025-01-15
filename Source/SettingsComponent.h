@@ -4,29 +4,44 @@
 class SettingsComponent : public juce::Component
 {
 public:
+    void updatePathDisplay(const juce::String& newPath)
+    {
+        pathDisplay.setText(newPath, juce::dontSendNotification);
+    }
+
+    juce::String getPathDisplayText() const
+    {
+        return pathDisplay.getText();
+    }
     SettingsComponent();
     ~SettingsComponent() override;
 
+    // Component overrides
     void paint(juce::Graphics&) override;
     void resized() override;
 
-private:
-    // Path selection components
-    juce::Label pathLabel;
-    juce::TextEditor pathInput;
-    juce::TextButton browseButton;
-    std::unique_ptr<juce::FileChooser> fileChooser;
+    void resetSavedPath(); // Declare the function
 
-    // Default plugin path
-    juce::String defaultPath;
 
-    // juce::ApplicationProperties for persistence
-    juce::ApplicationProperties applicationProperties;
-
-    // Path persistence functions
-    void browseForPath();
-    void savePath(const juce::String& path);
+    // Callback to notify about path changes
+    std::function<void(const juce::String&)> onPathChanged;
     juce::String loadSavedPath();
+    
+
+private:
+    juce::Label pathLabel;     // Label for the plugin path
+    juce::Label pathDisplay;   // Display for the current plugin path
+    juce::TextButton browseButton; // Button to browse for the plugin path
+    juce::TextButton resetButton;  // Button to reset the path to default
+
+    juce::ApplicationProperties applicationProperties; // For storing and loading user settings
+    juce::String defaultPath; // Default plugin path
+
+    std::unique_ptr<juce::FileChooser> fileChooser; // File chooser instance
+    juce::String savedPath; // Holds the current saved path
+    void browseForPath(); // Opens the file chooser
+    void savePath(const juce::String& path); // Saves the plugin path
+    
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(SettingsComponent)
 };

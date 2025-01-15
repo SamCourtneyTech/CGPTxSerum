@@ -7,7 +7,7 @@ void SerumInterfaceComponent::paint(juce::Graphics& g)
 {
     g.fillAll(juce::Colours::darkgrey); // Fill the background with a color
     g.setColour(juce::Colours::white);  // Set text color
-    g.drawText("Serum Interface Tab", getLocalBounds(), juce::Justification::centred, true);
+    g.drawText("Serum.vst3 not detected - Please set the correct plugin path in settings.", getLocalBounds(), juce::Justification::centred, true);
 }
 
 SerumInterfaceComponent::SerumInterfaceComponent(juce::AudioProcessor& processor)
@@ -34,7 +34,17 @@ SerumInterfaceComponent::~SerumInterfaceComponent()
 
 void SerumInterfaceComponent::loadSerum(const juce::File& pluginPath)
 {
-    if (!pluginPath.exists()) // Check if the path exists at all
+    if (serumInstance != nullptr)
+    {
+        serumEditor.reset(); // Reset the plugin editor
+        serumInstance.reset(); // Release the plugin instance
+        DBG("Unloaded previous plugin instance.");
+    }
+
+   
+
+
+    if (!pluginPath.exists()) 
     {
         DBG("Plugin path does not exist: " << pluginPath.getFullPathName());
         return;
@@ -56,7 +66,7 @@ void SerumInterfaceComponent::loadSerum(const juce::File& pluginPath)
 
     juce::AudioProcessor::BusesLayout layout;
 
-    // Check if the layout is supported
+
     if (!isBusesLayoutSupported(layout))
     {
         DBG("Unsupported bus layout");
@@ -79,20 +89,17 @@ void SerumInterfaceComponent::loadSerum(const juce::File& pluginPath)
         return;
     }
 
-    //juce::AudioPluginFormatManager formatManager;
+
     juce::KnownPluginList pluginList;
     juce::PluginDescription pluginDescription;
     juce::String errorMessage;
-    /*
-    bool success = formatManager.getDefaultFormat()->getPluginDescription(
-        pluginPath, pluginDescription); 
-    */
+
     
     juce::OwnedArray<juce::PluginDescription> descriptions;
     if (!pluginList.scanAndAddFile(pluginPath.getFullPathName(),
-        true, // dontRescanIfAlreadyInList
+        true, 
         descriptions,
-        *format)) // Pass the format for scanning
+        *format)) 
     {
         DBG("Failed to scan and add plugin: " << pluginPath.getFullPathName());
         return;
@@ -102,22 +109,10 @@ void SerumInterfaceComponent::loadSerum(const juce::File& pluginPath)
         DBG("No plugin descriptions found!");
         return;
     }
-        auto types = pluginList.getTypes();
+        //auto types = pluginList.getTypes();//might be able to delete
         pluginDescription = *descriptions.getFirst();
 
   
-
-    //pluginDescription.fileOrIdentifier = pluginPath.getFullPathName();
-    //pluginDescription.pluginFormatName = format->getName();
-    //pluginDescription.name = pluginPath.getFileNameWithoutExtension(); // Set the plugin name
-    //pluginDescription.manufacturerName = "Unknown"; // Default value
-    //pluginDescription.version = "Unknown"; // Default version
-   // pluginDescription.category = "Unknown"; // Assume category
-   // pluginDescription.isInstrument = true; // Default assumption
-    //pluginDescription.uniqueId = 0; // No unique ID available
-
-
-    // Debug output for PluginDescription
         if (!pluginDescription.fileOrIdentifier.isEmpty())
         {
             DBG("Plugin Name: " << pluginDescription.name);
@@ -135,9 +130,8 @@ void SerumInterfaceComponent::loadSerum(const juce::File& pluginPath)
         }
 
     std::unique_ptr<juce::AudioPluginInstance> instance;
-    //juce::String errorMessage;
 
-    // Attempt to create the plugin instance directly
+
     instance = formatManager.createPluginInstance(pluginDescription, sampleRate, blockSize, errorMessage);
 
     if (instance == nullptr)

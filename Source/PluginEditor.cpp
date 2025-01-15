@@ -10,29 +10,38 @@
 #include "PluginEditor.h"
 #include <JuceHeader.h>
 
-
-
 //==============================================================================
 CGPTxSerumAudioProcessorEditor::CGPTxSerumAudioProcessorEditor(CGPTxSerumAudioProcessor& p)
     : AudioProcessorEditor(&p), audioProcessor(p),
-    serumInterface(p) // Pass the processor to serumInterface
+    serumInterface(p), // Pass the processor to serumInterface
+    settings()         // Initialize the settings component
 {
     // Make sure that before the constructor has finished, you've set the
     // editor's size to whatever you need it to be.
-    setSize (902, 760);
+    setSize(902, 760);
+
     tabs.addTab("ChatGPT", juce::Colours::lightblue, &chatBar, false);
     tabs.addTab("Serum", juce::Colours::lightgreen, &serumInterface, false);
     tabs.addTab("Settings", juce::Colours::lightcoral, &settings, false);
-
+    settings.onPathChanged = [this](const juce::String& newPath)
+        {
+            DBG("onPathChanged triggered with path: " << newPath);
+            serumInterface.loadSerum(juce::File(newPath)); // Reload Serum with the new path
+        };
     // Add the TabbedComponent to the editor
     addAndMakeVisible(tabs);
 
-    // TEST: Load Serum with a hardcoded path
-    serumInterface.loadSerum(juce::File("C:/Program Files/Common Files/VST3/Serum.vst3")); //Potentially restricted
-    //serumInterface.loadSerum(juce::File("C:/Program Files/Common Files/VST3/Surge Synth Team/Surge XT.vst3")); //Another synth
-
-    //serumInterface.loadSerum(juce::File("C:/OTT/OTT.vst3")); //Shouldn't be restricted
-
+    /*
+    settings.onPathChanged = [this](const juce::String& newPath)
+        {
+            loadPluginFromSettings(newPath); // Dynamically load the plugin with the updated path
+        };
+    */
+    // Load the initial plugin path from saved settings or default
+    auto initialPath = settings.loadSavedPath();
+    settings.updatePathDisplay(initialPath); // Use the new public method
+    serumInterface.loadSerum(juce::File(initialPath)); // Load Serum on startup
+    //loadPluginFromSettings(initialPath);
 }
 
 CGPTxSerumAudioProcessorEditor::~CGPTxSerumAudioProcessorEditor()
@@ -40,25 +49,34 @@ CGPTxSerumAudioProcessorEditor::~CGPTxSerumAudioProcessorEditor()
 }
 
 //==============================================================================
-void CGPTxSerumAudioProcessorEditor::paint (juce::Graphics& g)
+void CGPTxSerumAudioProcessorEditor::paint(juce::Graphics& g)
 {
     // (Our component is opaque, so we must completely fill the background with a solid colour)
-    g.fillAll (getLookAndFeel().findColour (juce::ResizableWindow::backgroundColourId));
+    g.fillAll(getLookAndFeel().findColour(juce::ResizableWindow::backgroundColourId));
 
-    g.setColour (juce::Colours::white);
-    g.setFont (juce::FontOptions (30.0f));
-    g.drawFittedText ("ChatGPTxSerum (SC1)", getLocalBounds(), juce::Justification::centred, 1);
+    g.setColour(juce::Colours::white);
+    g.setFont(juce::FontOptions(30.0f));
+    g.drawFittedText("ChatGPTxSerum (SC1)", getLocalBounds(), juce::Justification::centred, 1);
 }
 
 void CGPTxSerumAudioProcessorEditor::resized()
 {
     // This is generally where you'll want to lay out the positions of any
-    // subcomponents in your editor..
-    /*
-    juce::File pluginPath("C:/Program Files/Common Files/VST3/OTT.vst3");
-    DBG("Plugin path: " << pluginPath.getFullPathName());
-    DBG("Plugin exists: " << (pluginPath.existsAsFile() ? "true" : "false"));
-    DBG("Directory exists: " << (pluginPath.isDirectory() ? "true" : "false"));
-    */
+    // subcomponents in your editor.
     tabs.setBounds(getLocalBounds());
+}
+
+//==============================================================================
+void CGPTxSerumAudioProcessorEditor::loadPluginFromSettings(const juce::String& path)
+{
+    juce::File pluginFile(path);
+    if (pluginFile.existsAsFile())
+    {
+        serumInterface.loadSerum(pluginFile);
+        DBG("Loaded plugin from: " + path);
+    }
+    else
+    {
+        DBG("Invalid plugin path: " + path);
+    }
 }
