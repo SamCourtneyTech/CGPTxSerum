@@ -9,6 +9,10 @@
 #pragma once
 
 #include <JuceHeader.h>
+#include "SerumInterfaceComponent.h"
+#include "SettingsComponent.h"
+
+
 
 //==============================================================================
 /**
@@ -40,6 +44,7 @@ public:
     bool acceptsMidi() const override;
     bool producesMidi() const override;
     bool isMidiEffect() const override;
+
     double getTailLengthSeconds() const override;
 
     //==============================================================================
@@ -52,8 +57,21 @@ public:
     //==============================================================================
     void getStateInformation (juce::MemoryBlock& destData) override;
     void setStateInformation (const void* data, int sizeInBytes) override;
+    //==============================================================================
 
 private:
     //==============================================================================
+    SerumInterfaceComponent serumInterface;
+    SettingsComponent settingsComponent;
+    /*
+    //testing output with basic oscillator:
+    float phase = 0.0f; // Phase of the oscillator
+    float phaseIncrement = 0.0f; // Increment for phase per sample
+    float frequency = 440.0f; // Frequency of the oscillator (A4)
+    */
+
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (CGPTxSerumAudioProcessor)
+
+
+    
 };

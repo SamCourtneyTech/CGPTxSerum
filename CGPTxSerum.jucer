@@ -2,7 +2,8 @@
 
 <JUCERPROJECT id="Noj2kU" name="CGPTxSerum" projectType="audioplug" useAppConfig="0"
               addUsingNamespaceToJuceHeader="0" jucerFormatVersion="1" pluginFormats="buildAAX,buildVST,buildVST3"
-              companyName="SCT" companyWebsite="samcourtney.tech" defines="JUCE_MODAL_LOOPS_PERMITTED=0">
+              companyName="SCT" companyWebsite="samcourtney.tech" defines="JUCE_MODAL_LOOPS_PERMITTED=0"
+              pluginCharacteristicsValue="pluginIsSynth,pluginWantsMidiIn">
   <MAINGROUP id="ccg6OY" name="CGPTxSerum">
     <GROUP id="{517D467F-398D-804E-B57E-F89D46CDD476}" name="Source">
       <FILE id="IA6aWA" name="PluginProcessor.cpp" compile="1" resource="0"

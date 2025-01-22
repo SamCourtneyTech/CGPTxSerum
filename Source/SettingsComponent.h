@@ -1,6 +1,9 @@
 #pragma once
 #include <JuceHeader.h>
 
+class CGPTxSerumAudioProcessor; // Forward declaration
+
+
 class SettingsComponent : public juce::Component
 {
 public:
@@ -13,7 +16,8 @@ public:
     {
         return pathDisplay.getText();
     }
-    SettingsComponent();
+
+    explicit SettingsComponent(CGPTxSerumAudioProcessor& processor);
     ~SettingsComponent() override;
 
     // Component overrides
@@ -26,7 +30,9 @@ public:
     // Callback to notify about path changes
     std::function<void(const juce::String&)> onPathChanged;
     juce::String loadSavedPath();
-    
+    juce::String getPluginPath() const; // Declaration in SettingsComponent
+
+
 
 private:
     juce::Label pathLabel;     // Label for the plugin path
@@ -41,7 +47,7 @@ private:
     juce::String savedPath; // Holds the current saved path
     void browseForPath(); // Opens the file chooser
     void savePath(const juce::String& path); // Saves the plugin path
-    
+    juce::Label pluginPathLabel;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(SettingsComponent)
 };

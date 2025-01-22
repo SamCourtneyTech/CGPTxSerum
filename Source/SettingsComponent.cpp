@@ -1,7 +1,9 @@
 #include "SettingsComponent.h"
 
-SettingsComponent::SettingsComponent()
+SettingsComponent::SettingsComponent(CGPTxSerumAudioProcessor& processor)
 {
+    // Use 'processor' here if necessary
+
     // Initialize propertiesFile
     juce::PropertiesFile::Options options;
     options.applicationName = "CGPTxSerum";
@@ -35,8 +37,9 @@ SettingsComponent::SettingsComponent()
     resetButton.setButtonText("Reset Path");
     resetButton.onClick = [this]() { resetSavedPath(); };
 
-    DBG("SettingsComponent constructed with path: " << savedPath);
+    DBG("SettingsComponent constructed with path: " << loadSavedPath());
 }
+
 void SettingsComponent::resetSavedPath()
 {
     auto* userSettings = applicationProperties.getUserSettings();
@@ -202,6 +205,10 @@ void SettingsComponent::browseForPath()
 
 
 
+juce::String SettingsComponent::getPluginPath() const
+{
+    return pluginPathLabel.getText(); // Replace with your actual logic for retrieving the path
+}
 
 
 

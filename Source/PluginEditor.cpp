@@ -12,9 +12,10 @@
 
 //==============================================================================
 CGPTxSerumAudioProcessorEditor::CGPTxSerumAudioProcessorEditor(CGPTxSerumAudioProcessor& p)
-    : AudioProcessorEditor(&p), audioProcessor(p),
-    serumInterface(p), // Pass the processor to serumInterface
-    settings()         // Initialize the settings component
+    : AudioProcessorEditor(&p),
+    audioProcessor(p),
+    serumInterface(p),
+    settings(p) // Pass the processor reference to settings
 {
     // Make sure that before the constructor has finished, you've set the
     // editor's size to whatever you need it to be.
