@@ -1,5 +1,6 @@
 #pragma once
 #include <JuceHeader.h>
+//#include "CustomButtonLookAndFeel.h"
 
 class CGPTxSerumAudioProcessor; // Forward declaration
 
@@ -48,6 +49,7 @@ private:
     void browseForPath(); // Opens the file chooser
     void savePath(const juce::String& path); // Saves the plugin path
     juce::Label pluginPathLabel;
+    //CustomButtonLookAndFeel customButtonLookAndFeel;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(SettingsComponent)
 };

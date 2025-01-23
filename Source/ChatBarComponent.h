@@ -1,6 +1,7 @@
 #pragma once
 #include <JuceHeader.h>
 
+
 class ChatBarComponent : public juce::Component
 {
 public:
@@ -13,4 +14,7 @@ public:
 private:
     juce::TextEditor chatInput;
     juce::TextButton sendButton;
+
+
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(ChatBarComponent)
 };

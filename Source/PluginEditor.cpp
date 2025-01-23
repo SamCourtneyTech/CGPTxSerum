@@ -21,9 +21,9 @@ CGPTxSerumAudioProcessorEditor::CGPTxSerumAudioProcessorEditor(CGPTxSerumAudioPr
     // editor's size to whatever you need it to be.
     setSize(902, 760);
 
-    tabs.addTab("ChatGPT", juce::Colours::lightblue, &chatBar, false);
-    tabs.addTab("Serum", juce::Colours::lightgreen, &serumInterface, false);
-    tabs.addTab("Settings", juce::Colours::lightcoral, &settings, false);
+    tabs.addTab("ChatGPT", juce::Colours::transparentBlack, &chatBar, false);
+    tabs.addTab("Serum", juce::Colours::transparentBlack, &serumInterface, false);
+    tabs.addTab("Settings", juce::Colours::transparentBlack, &settings, false);
     settings.onPathChanged = [this](const juce::String& newPath)
         {
             DBG("onPathChanged triggered with path: " << newPath);
@@ -53,12 +53,13 @@ CGPTxSerumAudioProcessorEditor::~CGPTxSerumAudioProcessorEditor()
 void CGPTxSerumAudioProcessorEditor::paint(juce::Graphics& g)
 {
     // (Our component is opaque, so we must completely fill the background with a solid colour)
-    g.fillAll(getLookAndFeel().findColour(juce::ResizableWindow::backgroundColourId));
+    g.fillAll(juce::Colours::black);
 
     g.setColour(juce::Colours::white);
     g.setFont(juce::FontOptions(30.0f));
     g.drawFittedText("ChatGPTxSerum (SC1)", getLocalBounds(), juce::Justification::centred, 1);
 }
+
 
 void CGPTxSerumAudioProcessorEditor::resized()
 {

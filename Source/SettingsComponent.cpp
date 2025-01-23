@@ -1,8 +1,41 @@
 #include "SettingsComponent.h"
+//#include "CustomButtonLookAndFeel.h"
+
+class SettingsButtonLookAndFeel : public juce::LookAndFeel_V4
+{
+public:
+    void drawButtonText(juce::Graphics& g, juce::TextButton& button,
+        bool /*isMouseOverButton*/, bool /*isButtonDown*/) override
+    {
+        auto font = juce::Font("Press Start 2P", 10.0f, juce::Font::plain); // Settings-specific font
+        g.setFont(font);
+        g.setColour(button.findColour(juce::TextButton::textColourOffId));
+        g.drawFittedText(button.getButtonText(), button.getLocalBounds(),
+            juce::Justification::centred, 1);
+    }
+
+    void drawButtonBackground(juce::Graphics& g, juce::Button& button,
+        const juce::Colour& backgroundColour,
+        bool isMouseOverButton, bool isButtonDown) override
+    {
+        auto bounds = button.getLocalBounds().toFloat();
+        juce::Colour fillColour = isButtonDown ? juce::Colours::darkgrey
+            : isMouseOverButton ? juce::Colours::lightgrey
+            : backgroundColour;
+
+        g.setColour(fillColour);
+        g.fillRect(bounds);
+    }
+};
+
+
+
 
 SettingsComponent::SettingsComponent(CGPTxSerumAudioProcessor& processor)
 {
     // Use 'processor' here if necessary
+
+    static SettingsButtonLookAndFeel customSettingsButtons;
 
     // Initialize propertiesFile
     juce::PropertiesFile::Options options;
@@ -14,31 +47,59 @@ SettingsComponent::SettingsComponent(CGPTxSerumAudioProcessor& processor)
 
     // Set default path
     defaultPath = "C:/Program Files/Common Files/VST3/Serum.vst3";
+    //defaultPath = "C:/Program Files";
 
     // Configure path label
-    pathLabel.setText("Plugin Path:", juce::dontSendNotification);
+    pathLabel.setText("Serum Path:", juce::dontSendNotification);
+    pathLabel.setColour(juce::Label::textColourId, juce::Colours::indianred);
+    pathLabel.setFont(juce::Font("Press Start 2P", 12.0f, juce::Font::italic));
     addAndMakeVisible(pathLabel);
+
 
     // Configure path display
     pathDisplay.setText(loadSavedPath(), juce::dontSendNotification);
-    pathDisplay.setColour(juce::Label::backgroundColourId, juce::Colours::darkgrey);
+    pathDisplay.setColour(juce::Label::backgroundColourId, juce::Colours::black);
     pathDisplay.setColour(juce::Label::textColourId, juce::Colours::white);
+    pathDisplay.setFont(juce::Font("Press Start 2P", 12.0f, juce::Font::plain));
     pathDisplay.setJustificationType(juce::Justification::centredLeft);
     pathDisplay.setBorderSize(juce::BorderSize<int>(2));
     addAndMakeVisible(pathDisplay);
 
     // Configure browse button
+    
+    browseButton.setLookAndFeel(&customSettingsButtons);
     addAndMakeVisible(browseButton);
     browseButton.setButtonText("Browse");
+    browseButton.setColour(juce::TextButton::buttonColourId, juce::Colours::whitesmoke); // Background color
+    browseButton.setColour(juce::TextButton::textColourOnId, juce::Colours::darkgoldenrod);    // Text color when pressed
+    browseButton.setColour(juce::TextButton::textColourOffId, juce::Colours::black); // Default text color
+
+
+    //browseButton.setColo
     browseButton.onClick = [this]() { browseForPath(); };
 
     // Configure reset button
     addAndMakeVisible(resetButton);
     resetButton.setButtonText("Reset Path");
+    resetButton.setLookAndFeel(&customSettingsButtons);
     resetButton.onClick = [this]() { resetSavedPath(); };
+    resetButton.setColour(juce::TextButton::buttonColourId, juce::Colours::whitesmoke); // Background color
+    resetButton.setColour(juce::TextButton::textColourOnId, juce::Colours::darkgoldenrod);    // Text color when pressed
+    resetButton.setColour(juce::TextButton::textColourOffId, juce::Colours::black); // Default text color
+
+
 
     DBG("SettingsComponent constructed with path: " << loadSavedPath());
 }
+
+SettingsComponent::~SettingsComponent()
+{
+    browseButton.setLookAndFeel(nullptr);
+}
+
+
+
+
 
 void SettingsComponent::resetSavedPath()
 {
@@ -213,20 +274,32 @@ juce::String SettingsComponent::getPluginPath() const
 
 
 
-SettingsComponent::~SettingsComponent() {}
+
 
 void SettingsComponent::paint(juce::Graphics& g)
 {
-    g.fillAll(juce::Colours::lightgrey); // Background
+    g.fillAll(juce::Colours::black); // Background
 }
 
 void SettingsComponent::resized()
 {
-    auto area = getLocalBounds().reduced(10);
-    pathLabel.setBounds(area.removeFromTop(20));
-    pathDisplay.setBounds(area.removeFromTop(30)); // Adjust bounds for label
-    browseButton.setBounds(area.removeFromTop(30).reduced(5));
-    resetButton.setBounds(area.removeFromTop(30).reduced(5)); // Add the reset button
+    auto bounds = getLocalBounds().reduced(10);
+
+    // Path label and display layout
+    pathLabel.setBounds(bounds.removeFromTop(20));
+    pathDisplay.setBounds(bounds.removeFromTop(30));
+
+    // Button dimensions and spacing
+    auto buttonWidth = 120;   // Width of each button
+    auto buttonHeight = 30;  // Height of each button
+    auto buttonSpacing = 10; // Space between buttons
+
+    // Reserve vertical space for buttons
+    auto buttonArea = bounds.removeFromTop(buttonHeight * 2 + buttonSpacing);
+
+    // Position buttons justified to the left
+    browseButton.setBounds(buttonArea.getX(), buttonArea.getY(), buttonWidth, buttonHeight);
+    resetButton.setBounds(buttonArea.getX() + buttonWidth + buttonSpacing, buttonArea.getY(), buttonWidth, buttonHeight);
 }
 
 

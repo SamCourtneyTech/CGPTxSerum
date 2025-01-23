@@ -5,9 +5,10 @@
 
 void SerumInterfaceComponent::paint(juce::Graphics& g)
 {
-    g.fillAll(juce::Colours::darkgrey); // Fill the background with a color
+    g.fillAll(juce::Colours::black); // Fill the background with a color
     g.setColour(juce::Colours::white);  // Set text color
-    g.drawText("Serum.vst3 not detected - Please set the correct plugin path in settings.", getLocalBounds(), juce::Justification::centred, true);
+    g.setFont(juce::Font("Press Start 2P", 12.0f, juce::Font::plain));
+    g.drawText("Serum.vst3 not detected-Check the plugin path in the settings tab.", getLocalBounds(), juce::Justification::centred, true);
 }
 
 SerumInterfaceComponent::SerumInterfaceComponent(juce::AudioProcessor& processor)
