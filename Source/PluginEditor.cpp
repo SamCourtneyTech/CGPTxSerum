@@ -1,48 +1,36 @@
-/*
-  ==============================================================================
-
-    This file contains the basic framework code for a JUCE plugin editor.
-
-  ==============================================================================
-*/
-
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
 #include <JuceHeader.h>
 
 //==============================================================================
+
 CGPTxSerumAudioProcessorEditor::CGPTxSerumAudioProcessorEditor(CGPTxSerumAudioProcessor& p)
     : AudioProcessorEditor(&p),
     audioProcessor(p),
-    serumInterface(p),
     settings(p) // Pass the processor reference to settings
 {
-    // Make sure that before the constructor has finished, you've set the
-    // editor's size to whatever you need it to be.
+    // Ensure size is set before construction completes
     setSize(902, 760);
 
+    // Corrected reference to SerumInterfaceComponent
     tabs.addTab("ChatGPT", juce::Colours::transparentBlack, &chatBar, false);
-    tabs.addTab("Serum", juce::Colours::transparentBlack, &serumInterface, false);
+    tabs.addTab("Serum", juce::Colours::transparentBlack, &audioProcessor.getSerumInterface(), false);
     tabs.addTab("Settings", juce::Colours::transparentBlack, &settings, false);
+
+    // Update the plugin path and notify the processor
     settings.onPathChanged = [this](const juce::String& newPath)
         {
             DBG("onPathChanged triggered with path: " << newPath);
-            serumInterface.loadSerum(juce::File(newPath)); // Reload Serum with the new path
+            audioProcessor.setSerumPath(newPath); // Calls processor, not SerumInterfaceComponent directly
         };
+
     // Add the TabbedComponent to the editor
     addAndMakeVisible(tabs);
 
-    /*
-    settings.onPathChanged = [this](const juce::String& newPath)
-        {
-            loadPluginFromSettings(newPath); // Dynamically load the plugin with the updated path
-        };
-    */
-    // Load the initial plugin path from saved settings or default
+    // Load the initial plugin path from saved settings
     auto initialPath = settings.loadSavedPath();
-    settings.updatePathDisplay(initialPath); // Use the new public method
-    serumInterface.loadSerum(juce::File(initialPath)); // Load Serum on startup
-    //loadPluginFromSettings(initialPath);
+    settings.updatePathDisplay(initialPath);
+    audioProcessor.setSerumPath(initialPath); // Calls processor, not SerumInterfaceComponent directly
 }
 
 CGPTxSerumAudioProcessorEditor::~CGPTxSerumAudioProcessorEditor()
@@ -50,9 +38,9 @@ CGPTxSerumAudioProcessorEditor::~CGPTxSerumAudioProcessorEditor()
 }
 
 //==============================================================================
+
 void CGPTxSerumAudioProcessorEditor::paint(juce::Graphics& g)
 {
-    // (Our component is opaque, so we must completely fill the background with a solid colour)
     g.fillAll(juce::Colours::black);
 
     g.setColour(juce::Colours::white);
@@ -60,21 +48,19 @@ void CGPTxSerumAudioProcessorEditor::paint(juce::Graphics& g)
     g.drawFittedText("ChatGPTxSerum (SC1)", getLocalBounds(), juce::Justification::centred, 1);
 }
 
-
 void CGPTxSerumAudioProcessorEditor::resized()
 {
-    // This is generally where you'll want to lay out the positions of any
-    // subcomponents in your editor.
     tabs.setBounds(getLocalBounds());
 }
 
 //==============================================================================
+
 void CGPTxSerumAudioProcessorEditor::loadPluginFromSettings(const juce::String& path)
 {
     juce::File pluginFile(path);
     if (pluginFile.existsAsFile())
     {
-        serumInterface.loadSerum(pluginFile);
+        audioProcessor.setSerumPath(path); // Calls processor instead of directly modifying SerumInterfaceComponent
         DBG("Loaded plugin from: " + path);
     }
     else

@@ -8,19 +8,19 @@ class SerumInterfaceComponent : public juce::Component
 public:
     SerumInterfaceComponent(juce::AudioProcessor& processor);
     ~SerumInterfaceComponent() override;
-
+    void setPluginInstance(juce::AudioPluginInstance* newPlugin);
     void paint(juce::Graphics&) override;
     void resized() override;
 
     void loadSerum(const juce::File& pluginPath);
     void processMidiAndAudio(juce::AudioBuffer<float>& audioBuffer, juce::MidiBuffer& midiMessages, double sampleRate);
     juce::AudioPluginInstance* getSerumInstance() const { return serumInstance.get(); }
-
+    std::unique_ptr<juce::AudioPluginInstance> serumInstance;
     void prepareToPlay(double sampleRate, int samplesPerBlock);
 private:
 
     juce::AudioPluginFormatManager formatManager;
-    std::unique_ptr<juce::AudioPluginInstance> serumInstance;
+    
     std::unique_ptr<juce::AudioProcessorEditor> serumEditor;
     juce::AudioProcessor& parentProcessor;
     bool isBusesLayoutSupported(const juce::AudioProcessor::BusesLayout& layouts) const;

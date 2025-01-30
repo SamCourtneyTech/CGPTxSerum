@@ -34,6 +34,37 @@ SerumInterfaceComponent::~SerumInterfaceComponent()
 }
 
 
+
+void SerumInterfaceComponent::setPluginInstance(juce::AudioPluginInstance* newPlugin)
+{
+    if (!newPlugin)
+    {
+        DBG("setPluginInstance received a null pointer.");
+        return;
+    }
+
+    if (serumInstance.get() == newPlugin)
+    {
+        DBG("setPluginInstance called, but instance is already set.");
+        return;
+    }
+
+    serumInstance.reset(newPlugin); // Assign new instance
+
+    serumEditor.reset(serumInstance->createEditorIfNeeded());
+    if (serumEditor)
+    {
+        DBG("Editor successfully created in SerumInterfaceComponent.");
+        addAndMakeVisible(serumEditor.get());
+        resized();
+    }
+    else
+    {
+        DBG("Failed to create editor in SerumInterfaceComponent.");
+    }
+}
+
+
 void SerumInterfaceComponent::prepareToPlay(double sampleRate, int samplesPerBlock)
 {
     if (serumInstance != nullptr)

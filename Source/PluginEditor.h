@@ -23,7 +23,7 @@ private:
     juce::TabbedComponent tabs{ juce::TabbedButtonBar::TabsAtTop }; // Create the tabbed interface
 
     ChatBarComponent chatBar;
-    SerumInterfaceComponent serumInterface;
+    
     SettingsComponent settings;
     void loadPluginFromSettings(const juce::String& path);
 

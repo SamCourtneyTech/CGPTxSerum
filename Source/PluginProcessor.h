@@ -58,11 +58,16 @@ public:
     void getStateInformation (juce::MemoryBlock& destData) override;
     void setStateInformation (const void* data, int sizeInBytes) override;
     //==============================================================================
-
+    //std::unique_ptr<juce::AudioPluginInstance> serumInstance;
+    //juce::AudioPluginInstance* getSerumInstance() const { return serumInstance.get(); }
+    juce::AudioPluginInstance* getSerumInstance(); // New function to expose instance
+    SerumInterfaceComponent& getSerumInterface() { return serumInterface; }
+    void setSerumPath(const juce::String& newPath);
 private:
     //==============================================================================
     SerumInterfaceComponent serumInterface;
     SettingsComponent settingsComponent;
+    juce::String serumPluginPath = "C:/Program Files/Common Files/VST3/Serum.vst3"; //change later
     /*
     //testing output with basic oscillator:
     float phase = 0.0f; // Phase of the oscillator

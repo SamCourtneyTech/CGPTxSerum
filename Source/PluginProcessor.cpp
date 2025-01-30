@@ -99,20 +99,35 @@ void CGPTxSerumAudioProcessor::changeProgramName (int index, const juce::String&
 //==============================================================================
 void CGPTxSerumAudioProcessor::prepareToPlay(double sampleRate, int samplesPerBlock)
 {
-    // Load Serum plugin
-    juce::File serumPath("C:/Program Files/Common Files/VST3/Serum.vst3");
-    serumInterface.loadSerum(serumPath);
+    DBG("prepareToPlay called: SampleRate = " << sampleRate << ", BlockSize = " << samplesPerBlock);
+    
+    // Load Serum only once using the stored path
+    if (serumInterface.getSerumInstance() == nullptr) 
+    {
+        serumInterface.loadSerum(juce::File(serumPluginPath));
+    }
 
     if (serumInterface.getSerumInstance() != nullptr)
     {
-        DBG("Serum loaded successfully from user-defined path!");
-
-        // Call prepareToPlay on serumInterface to ensure it is fully configured
+        DBG("Serum loaded successfully from stored path!");
         serumInterface.prepareToPlay(sampleRate, samplesPerBlock);
     }
     else
     {
-        DBG("Failed to load Serum from user-defined path.");
+        DBG("Failed to load Serum from stored path.");
+    }
+}
+
+void CGPTxSerumAudioProcessor::setSerumPath(const juce::String& newPath)
+{
+    if (newPath != serumPluginPath)
+    {
+        DBG("Updating Serum Path: " << newPath);
+        serumPluginPath = newPath; // Store new path
+
+        // Reload Serum with the new path and reconfigure audio
+        serumInterface.loadSerum(juce::File(serumPluginPath));
+        serumInterface.prepareToPlay(getSampleRate(), getBlockSize());
     }
 }
 
@@ -155,39 +170,13 @@ bool CGPTxSerumAudioProcessor::isBusesLayoutSupported(const BusesLayout& layouts
 }
 #endif
 
-
-
-/*
-* version with a lot of debugging statments
-void CGPTxSerumAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midiMessages)
+juce::AudioPluginInstance* CGPTxSerumAudioProcessor::getSerumInstance()
 {
-    
-    
-    juce::ScopedNoDenormals noDenormals;
-
-    DBG("Audio buffer before processing: " << buffer.getMagnitude(0, buffer.getNumSamples()));
-    
-    for (const auto metadata : midiMessages)
-    {
-        auto message = metadata.getMessage();
-        if (message.isNoteOn())
-        {
-            DBG("Note On: " << message.getNoteNumber());
-        }
-        else if (message.isNoteOff())
-        {
-            DBG("Note Off: " << message.getNoteNumber());
-        }
-    }
-    
-    serumInterface.processMidiAndAudio(buffer, midiMessages, getSampleRate());
-
-    DBG("Audio buffer after processing: " << buffer.getMagnitude(0, buffer.getNumSamples()));
-    
+    return serumInterface.getSerumInstance(); // Retrieve from SerumInterfaceComponent
 }
-*/
 
-//simplified
+
+
 void CGPTxSerumAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midiMessages)
 {
     juce::ScopedNoDenormals noDenormals;
