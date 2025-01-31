@@ -18,6 +18,10 @@
           file="Source/ChatBarComponent.cpp"/>
     <FILE id="pHi8hK" name="ChatBarComponent.h" compile="0" resource="0"
           file="Source/ChatBarComponent.h"/>
+    <FILE id="grqGMS" name="ParameterNormalizer.cpp" compile="1" resource="0"
+          file="Source/ParameterNormalizer.cpp"/>
+    <FILE id="L9XgI2" name="ParameterNormalizer.h" compile="0" resource="0"
+          file="Source/ParameterNormalizer.h"/>
     <FILE id="vLWW2X" name="SerumInterfaceComponent.cpp" compile="1" resource="0"
           file="Source/SerumInterfaceComponent.cpp"/>
     <FILE id="KuvJF7" name="SerumInterfaceComponent.h" compile="0" resource="0"

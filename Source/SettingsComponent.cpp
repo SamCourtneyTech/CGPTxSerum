@@ -13,7 +13,7 @@ public:
         g.drawFittedText(button.getButtonText(), button.getLocalBounds(),
             juce::Justification::centred, 1);
     }
-
+     
     void drawButtonBackground(juce::Graphics& g, juce::Button& button,
         const juce::Colour& backgroundColour,
         bool isMouseOverButton, bool isButtonDown) override

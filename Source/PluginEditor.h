@@ -16,7 +16,7 @@ public:
     void resized() override;
 
 private:
-
+    
     CGPTxSerumAudioProcessor& audioProcessor;
 
 

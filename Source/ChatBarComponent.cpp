@@ -1,7 +1,8 @@
 #include "ChatBarComponent.h"
-
+#include <sstream>
 #include <juce_gui_basics/juce_gui_basics.h>
-
+#include <map>
+#include <string>
 
 class ChatBarButtonLookAndFeel : public juce::LookAndFeel_V4
 {
@@ -60,8 +61,35 @@ ChatBarComponent::ChatBarComponent()
 
 }
 
+/*
+void ChatBarComponent::processChatGPTResponse(const std::string& response)
+{
+    std::istringstream stream(response);
+    std::string token;
 
+    while (std::getline(stream, token, ','))
+    {
+        std::istringstream pairStream(token);
+        std::string paramName;
+        float value;
 
+        if (std::getline(pairStream, paramName, '='))
+        {
+            pairStream >> value;
+            audioProcessor.setParameterByName(paramName, value);
+        }
+    }
+}
+void ChatBarComponent::sendToChatGPT(const std::string& userMessage)
+{
+    std::string chatGPTResponse = callChatGPTApi(userMessage); // Your API call function
+
+    if (!chatGPTResponse.empty())
+    {
+        processChatGPTResponse(chatGPTResponse);
+    }
+}
+*/
 
 
 ChatBarComponent::~ChatBarComponent() 
@@ -95,3 +123,21 @@ void ChatBarComponent::resized()
     
     //sendButton.setBounds(area.removeFromTop(30).reduced(5));
 }
+
+
+// Map for Serum parameter names and their target values
+/*
+std::map<std::string, std::string> ChatBarComponent::aiResponse1 = {
+    {"Env1 Atk", "0.5 ms"},
+    {"Env1 Hold", "0.0 ms"},
+    {"Env1 Dec", "1.00 s"},
+    {"Fil Cutoff", "425 Hz"},
+    {"Fil Reso", "10%"}
+};
+
+// Static function to return the map
+const std::map<std::string, std::string>& ChatBarComponent::getAIResponse()
+{
+    return aiResponse1;
+}
+*/

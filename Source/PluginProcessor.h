@@ -65,6 +65,11 @@ public:
     void setSerumPath(const juce::String& newPath);
 private:
     //==============================================================================
+    std::map<std::string, int> parameterMap;
+    void enumerateParameters();
+    void CGPTxSerumAudioProcessor::setParameterByName(const std::pair<std::string, float>& paramData);
+    float parseValue(const std::string& value);
+    void applyPresetToSerum();
     SerumInterfaceComponent serumInterface;
     SettingsComponent settingsComponent;
     juce::String serumPluginPath = "C:/Program Files/Common Files/VST3/Serum.vst3"; //change later
