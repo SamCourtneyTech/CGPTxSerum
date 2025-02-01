@@ -55,15 +55,15 @@ std::pair<std::string, float> normalizeValue(const std::string& name, const std:
         else if (name == "Fil Type" || name == "FX Fil Type")
             normalizedValue = filterTypeToMacro(name, value); //done
         else if (name == "Dist_Mode")
-            normalizedValue = distortionTypeToMacro(name, value); //done
-        else if (name == "A UniBlend" || name == "B UniBlend" || name == "Comp_Wet")
-            normalizedValue = std::stof(value);  // Direct conversion
+            normalizedValue = distortionTypeToMacro(name, value);
+        else if (name == "A UniBlend" || name == "B UniBlend" || name == "Comp_Wet") 
+            normalizedValue = uniblendToF(name, value); // incorrect ///////////////
         else if (name == "SubOscShape") 
-            normalizedValue = subShapeToMacro(name, value);//done
+            normalizedValue = subShapeToMacro(name, value);
         else if (name == "B Octave" || name == "SubOscOctave")
-            normalizedValue = octToMidi(name, value); //done 
+            normalizedValue = octToMidi(name, value);
         else if (name == "Hyp_Retrig")
-            normalizedValue = onToPercentage(name, value);//done
+            normalizedValue = onToPercentage(name, value);
         else if (name == "Hyp_Unison")
             normalizedValue = hypUnisonToMacro(name, value);
         else if (name == "A UniDet" || name == "B UniDet")
@@ -94,18 +94,18 @@ std::pair<std::string, float> normalizeValue(const std::string& name, const std:
             normalizedValue = distFreqToPercentage(name, value);
         else if (name == "Dly_Link")
             normalizedValue = onToPercentage(name, value);
-        else if (name == "Dly_TimL" || name == "DlyTimR")
-            normalizedValue = delayTimeToPercentage(name, value);
+        else if (name == "Dly_TimL" || name == "Dly_TimR")
+            normalizedValue = delayTimeToPercentage(name, value); 
         else if (name == "Dly_BW")
             normalizedValue = dlyBwToPercentage(name, value);
         else if (name == "Dly_Mode")
-            normalizedValue = dlyModeToPercentage(name, value);
+            normalizedValue = dlyModeToPercentage(name, value); 
         else if (name == "Cmp_Thr")
             normalizedValue = cmpThrToPercentage(name, value);
         else if (name == "Cmp_Att")
             normalizedValue = cmpAttToPercentage(name, value);
         else if (name == "Cmp_Rel")
-            normalizedValue = cmpAttToPercentage(name, value);
+            normalizedValue = cmpRelToPercentage(name, value); // incorrect /////////////// -> configure cmptoRel after bang functionality
         else if (name == "CmpGain")
             normalizedValue = cmpGainToPercentage(name, value);
         else if (name == "CmpMBnd")
@@ -113,9 +113,14 @@ std::pair<std::string, float> normalizeValue(const std::string& name, const std:
         else if (name == "EQ VolL" || name == "EQ VolH")
             normalizedValue = eqVolToPercentage(name, value);
         else if (name == "EQ TypL" || name == "EQ TypH")
-            normalizedValue = eqTypToPercentage(name, value);
+            normalizedValue = eqTypToPercentage(name, value); 
         else if (value == "on" || value == "off")
             normalizedValue = onToPercentage(name, value);
+        else if (name == "Decay")
+            normalizedValue = decayToF(name, value);
+        //missing decay
+        //missing pan
+
     }
     catch (...) {
         normalizedValue = getRandomFValue();  // Use fallback if something goes wrong
@@ -531,6 +536,19 @@ float distortionTypeToMacro(const std::string& name, const std::string& value) {
     }
 
     return getRandomFValue(); // Return fallback value if not found
+}
+
+float uniblendToF(const std::string& name, const std::string& value) {
+    try {
+        float blendValue = std::stof(value);
+        if (blendValue < 0.0f || blendValue > 100.0f) {
+            return getRandomFValue(); // Fallback if out of expected range
+        }
+        return blendValue / 100.0f; // Normalize to 0.0f - 1.0f
+    }
+    catch (...) {
+        return getRandomFValue(); // Fallback for invalid inputs
+    }
 }
 
 float subShapeToMacro(const std::string& name, const std::string& value) {
@@ -979,21 +997,19 @@ float dlyBwToPercentage(const std::string& name, const std::string& value) {
 
 float dlyModeToPercentage(const std::string& name, const std::string& value) {
     static const std::unordered_map<std::string, float> dlyModeMap = {
-        {"Normal", 0.18f}, {"0", 0.18f},
+        {"Normal", 0.18f}, {"0", 0.18f}, {"normal", 0.18f}, {"NORMAL", 0.18f},
         {"Ping-Pong", 0.30f}, {"ping pong", 0.30f}, {"pingpong", 0.30f},
-        {"PingPong", 0.30f}, {"Ping Pong", 0.30f}, {"1", 0.30f},
+        {"PingPong", 0.30f}, {"Ping Pong", 0.30f}, {"1", 0.30f}, {"ping-pong", 0.30f}, {"Ping-pong", 0.30f}, {"ping-Pong", 0.30f},
         {"Tap->Delay", 0.80f}, {"2", 0.80f}, {"tapdelay", 0.80f},
         {"TapDelay", 0.80f}, {"tap delay", 0.80f}, {"Tap Delay", 0.80f}
     };
 
-    std::string lowerValue = value;
-    std::transform(lowerValue.begin(), lowerValue.end(), lowerValue.begin(), ::tolower);
-
-    auto it = dlyModeMap.find(lowerValue);
-    if (it != dlyModeMap.end())
+    auto it = dlyModeMap.find(value);
+    if (it != dlyModeMap.end()) {
         return it->second;
+    }
 
-    return getRandomFValue();
+    return getRandomFValue(); // Fallback value
 }
 
 float delayTimeToPercentage(const std::string& name, const std::string& value) {
@@ -1209,13 +1225,27 @@ float eqTypToPercentage(const std::string& name, const std::string& value) {
         return it->second;
     }
 
-    return getRandomFValue(); // Return fallback value if input is not found
+    return getRandomFValue();
 }
 
+float decayToF(const std::string& name, const std::string& value) {
+    try {
+        std::string trimmedValue = value;
+        if (trimmedValue.find(" s") != std::string::npos) {
+            trimmedValue.erase(trimmedValue.find(" s"), 2); // Remove " s"
+        }
 
+        float decayValue = std::stof(trimmedValue);
+        if (decayValue < 0.8f || decayValue > 12.0f) {
+            return getRandomFValue(); // Fallback if out of expected range
+        }
 
-
-
+        return (decayValue - 0.8f) / (12.0f - 0.8f); // Normalize to 0.0f - 1.0f
+    }
+    catch (...) {
+        return getRandomFValue(); // Fallback for invalid inputs
+    }
+}
 
 
 

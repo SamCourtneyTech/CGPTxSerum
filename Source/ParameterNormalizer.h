@@ -28,6 +28,7 @@ float fineToMacro(const std::string& name, const std::string& value);
 float frequencyToPercentage(const std::string& name, const std::string& value);
 float filterTypeToMacro(const std::string& name, const std::string& value);
 float distortionTypeToMacro(const std::string& name, const std::string& value);
+float uniblendToF(const std::string& name, const std::string& value);
 float subShapeToMacro(const std::string& name, const std::string& value);
 float onToPercentage(const std::string& name, const std::string& value);
 float hypUnisonToMacro(const std::string& name, const std::string& value);
@@ -56,6 +57,8 @@ float cmpGainToPercentage(const std::string& name, const std::string& value);
 float CmpMBndToPercentage(const std::string& name, const std::string& value);
 float eqVolToPercentage(const std::string& name, const std::string& value);
 float eqTypToPercentage(const std::string& name, const std::string& value);
+float decayToF(const std::string& name, const std::string& value);
+
 
 float normalizePercentage(const std::string& name, const std::string& value);
 float normalizeFrequency(const std::string& name, const std::string& value);
