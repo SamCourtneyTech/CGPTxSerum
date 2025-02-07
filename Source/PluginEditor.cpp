@@ -25,8 +25,15 @@ CGPTxSerumAudioProcessorEditor::CGPTxSerumAudioProcessorEditor(CGPTxSerumAudioPr
             audioProcessor.setSerumPath(newPath); // Calls processor, not SerumInterfaceComponent directly
         };
 
+
+
     // Add the TabbedComponent to the editor
     addAndMakeVisible(tabs);
+
+    audioProcessor.onPresetApplied = [this]()
+        {
+            tabs.setCurrentTabIndex(1); // Switch to Serum tab
+        };
 
     // Load the initial plugin path from saved settings
     auto initialPath = settings.loadSavedPath();
@@ -39,6 +46,7 @@ CGPTxSerumAudioProcessorEditor::~CGPTxSerumAudioProcessorEditor()
 }
 
 //==============================================================================
+
 
 void CGPTxSerumAudioProcessorEditor::paint(juce::Graphics& g)
 {

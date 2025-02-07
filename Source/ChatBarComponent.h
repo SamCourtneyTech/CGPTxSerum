@@ -12,14 +12,14 @@ public:
 
     void paint(juce::Graphics&) override;
     void resized() override;
-    std::map<std::string, std::string> sendPromptToChatGPT(const juce::String& userPrompt);   // void parseChatGPTResponse(const juce::String& response); // Parses JSON response from ChatGPT
-    void sendAIResponseToProcessor(const std::map<std::string, std::string>& aiResponse); // New function
-    void applyPresetToAllItems(const std::vector<std::map<std::string, std::string>>& presetList);
+    std::map<std::string, std::string> sendPromptToChatGPT(const juce::String& userPrompt);  
+    void sendAIResponseToProcessor(const std::map<std::string, std::string>& aiResponse);
+    
    
 
 private:
 
-    CGPTxSerumAudioProcessor& processor;  // Reference to the processor
+    CGPTxSerumAudioProcessor& processor; 
     juce::TextEditor chatInput;
     juce::TextButton sendButton;
     bool requestInProgress = false;

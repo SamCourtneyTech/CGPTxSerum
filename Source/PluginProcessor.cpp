@@ -117,6 +117,7 @@ void CGPTxSerumAudioProcessor::prepareToPlay(double sampleRate, int samplesPerBl
     }
 
     enumerateParameters(); // Call parameter mapping function //new 
+    //listSerumParameters();
     
 }
 
@@ -155,6 +156,24 @@ void CGPTxSerumAudioProcessor::setParameterByName(const std::pair<std::string, f
     }
 }
 
+/*
+void CGPTxSerumAudioProcessor::listSerumParameters()
+{
+    auto* serum = getSerumInstance();
+    if (!serum) return;
+
+    int numParams = serum->getNumParameters();
+    for (int i = 0; i < numParams; ++i)
+    {
+        juce::String paramName = serum->getParameterName(i);
+        DBG("Parameter " + juce::String(i) + ": " + paramName);
+    }
+}
+*/
+
+
+
+
 
 float CGPTxSerumAudioProcessor::parseValue(const std::string& value)
 {
@@ -184,6 +203,11 @@ void CGPTxSerumAudioProcessor::applyPresetToSerum(const std::map<std::string, st
 
         setParameterByName(normalizeValue(paramName, textValue));
     }
+    if (onPresetApplied)
+    {
+        onPresetApplied();
+    }
+    
 }
 void CGPTxSerumAudioProcessor::setSerumPath(const juce::String& newPath)
 {

@@ -74,7 +74,7 @@ std::map<std::string, std::string> LocalaiResponse = {
         {"Noise Level", "0% (-inf dB)"},
         {"Osc S On", "on"},
         {"Sub Osc Level", "0%"},
-        {"SubOscOctave", "0 Oct"},
+        {"SubOscOctave", "-4 Oct"},
         {"SubOscShape", "Square"},
         {"Osc B On", "on"},
         {"B UniDet", "0.00"},
@@ -85,7 +85,7 @@ std::map<std::string, std::string> LocalaiResponse = {
         {"B Unison", "14"},
         {"B Octave", "-2 Oct"},
         {"B Semi", "+11 semitones"},
-        {"B Fine", "-66 cents"},
+        {"B Fine", "66 cents"},
         {"Hyp Enable", "on"},
         {"Hyp_Rate", "25%"},
         {"Hyp_Detune", "25%"},
@@ -206,11 +206,9 @@ ChatBarComponent::ChatBarComponent(CGPTxSerumAudioProcessor& p) : processor(p)
 
 
 
-        juce::String modifiedUserInput = systemMessage + "\n\nUser: " + userInput;
-
-        //applyPresetToAllItems(sendPromptToChatGPT(userInput));
-        //sendPromptToChatGPT(userInput);
-        processor.applyPresetToSerum(sendPromptToChatGPT(userInput));
+        processor.applyPresetToSerum(LocalaiResponse);
+        
+        //processor.applyPresetToSerum(sendPromptToChatGPT(userInput));
         };
 
 
@@ -223,7 +221,7 @@ ChatBarComponent::ChatBarComponent(CGPTxSerumAudioProcessor& p) : processor(p)
 std::map<std::string, std::string> ChatBarComponent::sendPromptToChatGPT(const juce::String& userPrompt)
 {
     const juce::String apiEndpoint = "https://api.openai.com/v1/chat/completions";
-    const juce::String apiKey = "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX";
+    const juce::String apiKey = "XXXXXXXXXX";
 
     constexpr int MAX_OPENAI_LENGTH = 32000;
     constexpr int CONNECTION_TIMEOUT_MS = 60000;  // 60 second connection timeout
@@ -402,14 +400,6 @@ std::map<std::string, std::string> ChatBarComponent::sendPromptToChatGPT(const j
 }
 
 
-
-void ChatBarComponent::applyPresetToAllItems(const std::vector<std::map<std::string, std::string>>& presetList)
-{
-    for (const auto& preset : presetList)
-    {
-        processor.applyPresetToSerum(preset);
-    }
-}
 
 
 
