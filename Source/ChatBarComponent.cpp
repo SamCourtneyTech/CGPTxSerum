@@ -220,7 +220,6 @@ ChatBarComponent::ChatBarComponent(CGPTxSerumAudioProcessor& p) : processor(p)
 
 
 
-//const juce::String apiKey = "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";  // Replace with your actual API key
 std::map<std::string, std::string> ChatBarComponent::sendPromptToChatGPT(const juce::String& userPrompt)
 {
     const juce::String apiEndpoint = "https://api.openai.com/v1/chat/completions";
