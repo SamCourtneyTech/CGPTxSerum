@@ -18,6 +18,9 @@
           file="Source/ChatBarComponent.cpp"/>
     <FILE id="pHi8hK" name="ChatBarComponent.h" compile="0" resource="0"
           file="Source/ChatBarComponent.h"/>
+    <FILE id="Ykt3uh" name="ChatGPTClient.cpp" compile="1" resource="0"
+          file="Source/ChatGPTClient.cpp"/>
+    <FILE id="JttHPF" name="ChatGPTClient.h" compile="0" resource="0" file="Source/ChatGPTClient.h"/>
     <FILE id="grqGMS" name="ParameterNormalizer.cpp" compile="1" resource="0"
           file="Source/ParameterNormalizer.cpp"/>
     <FILE id="L9XgI2" name="ParameterNormalizer.h" compile="0" resource="0"

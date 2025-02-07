@@ -21,43 +21,43 @@ std::pair<std::string, float> normalizeValue(const std::string& name, const std:
 
     try {
         if (name == "Env1 Atk" || name == "Env1 Hold" || name == "Env1 Dec" || name == "Env1 Rel")
-            normalizedValue = normalizeMsS(name, value); // done
+            normalizedValue = normalizeMsS(name, value); 
         else if (name == "Env1 Sus")
-            normalizedValue = normalizeDbToF(name, value); //done
+            normalizedValue = normalizeDbToF(name, value); 
         else if (name == "A Pan" || name == "B Pan")
-            normalizedValue = normalizePanToF(name, value);//done
+            normalizedValue = normalizePanToF(name, value);
         else if (name == "Cho_Dep")
-            normalizedValue = choDepthToPercentage(name, value); //done
+            normalizedValue = choDepthToPercentage(name, value); 
         else if (name == "B WTPos")
             normalizedValue = wtToMidi(name, value);// will need to figure out alternative to this- have chat select custom wavetable???
         else if (name == "A WTPos")
             normalizedValue = wtToMidi(name, value);// will need to figure out alternative to this- have chat select custom wavetable???
         else if (name == "A Vol")
-            normalizedValue = percentageToMacro(name, value); //done
+            normalizedValue = percentageToMacro(name, value); 
         else if (name == "Noise Level" || name == "B Vol" || name == "Sub Osc Level")
-            normalizedValue = percentageToMacro(name, value); //done 
+            normalizedValue = percentageToMacro(name, value); 
         else if (name == "Cho_Feed")
-            normalizedValue = choFeedToMacro(name, value);//done
+            normalizedValue = choFeedToMacro(name, value);
         else if (value.find('%') != std::string::npos && value.find('(') == std::string::npos)
-            normalizedValue = percentageToMacro(name, value); //done
+            normalizedValue = percentageToMacro(name, value); 
         else if (name == "B Unison")
-            normalizedValue = unisonToMacro(name, value);//done
+            normalizedValue = unisonToMacro(name, value);
         else if (name == "A Unison")
-            normalizedValue = unisonToMacro(name, value);//done
+            normalizedValue = unisonToMacro(name, value);
         else if (name == "A Octave")
-            normalizedValue = octToMidi(name, value); //done
+            normalizedValue = octToMidi(name, value); 
         else if (name == "A Semi" || name == "B Semi")
-            normalizedValue = semiToMacro(name, value); //done
+            normalizedValue = semiToMacro(name, value); 
         else if (name == "A Fine" || name == "B Fine")
-            normalizedValue = fineToMacro(name, value);//done
+            normalizedValue = fineToMacro(name, value);
         else if (name == "Fil Cutoff")
-            normalizedValue = frequencyToPercentage(name, value);//done
+            normalizedValue = frequencyToPercentage(name, value);
         else if (name == "Fil Type" || name == "FX Fil Type")
-            normalizedValue = filterTypeToMacro(name, value); //done
+            normalizedValue = filterTypeToMacro(name, value); 
         else if (name == "Dist_Mode")
             normalizedValue = distortionTypeToMacro(name, value);
         else if (name == "A UniBlend" || name == "B UniBlend" || name == "Comp_Wet") 
-            normalizedValue = uniblendToF(name, value); // incorrect ///////////////
+            normalizedValue = uniblendToF(name, value); 
         else if (name == "SubOscShape") 
             normalizedValue = subShapeToMacro(name, value);
         else if (name == "B Octave" || name == "SubOscOctave")
@@ -118,8 +118,9 @@ std::pair<std::string, float> normalizeValue(const std::string& name, const std:
             normalizedValue = onToPercentage(name, value);
         else if (name == "Decay")
             normalizedValue = decayToF(name, value);
-        //missing decay
-        //missing pan
+
+        //missing fil pan
+        //missing ratio
 
     }
     catch (...) {

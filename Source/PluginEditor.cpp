@@ -1,3 +1,4 @@
+#pragma once
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
 #include <JuceHeader.h>
@@ -7,7 +8,7 @@
 CGPTxSerumAudioProcessorEditor::CGPTxSerumAudioProcessorEditor(CGPTxSerumAudioProcessor& p)
     : AudioProcessorEditor(&p),
     audioProcessor(p),
-    settings(p) // Pass the processor reference to settings
+    settings(p), chatBar(p) // Pass the processor reference to settings
 {
     // Ensure size is set before construction completes
     setSize(902, 760);

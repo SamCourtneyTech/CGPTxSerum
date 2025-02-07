@@ -63,13 +63,14 @@ public:
     juce::AudioPluginInstance* getSerumInstance(); // New function to expose instance
     SerumInterfaceComponent& getSerumInterface() { return serumInterface; }
     void setSerumPath(const juce::String& newPath);
+    void applyPresetToSerum(const std::map<std::string, std::string>& ChatResponse);
 private:
     //==============================================================================
     std::map<std::string, int> parameterMap;
     void enumerateParameters();
     void CGPTxSerumAudioProcessor::setParameterByName(const std::pair<std::string, float>& paramData);
     float parseValue(const std::string& value);
-    void applyPresetToSerum();
+    
     SerumInterfaceComponent serumInterface;
     SettingsComponent settingsComponent;
     juce::String serumPluginPath = "C:/Program Files/Common Files/VST3/Serum.vst3"; //change later
