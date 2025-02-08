@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <JUCERPROJECT id="Noj2kU" name="CGPTxSerum" projectType="audioplug" useAppConfig="0"
-              addUsingNamespaceToJuceHeader="0" jucerFormatVersion="1" pluginFormats="buildAAX,buildVST,buildVST3"
-              companyName="SCT" companyWebsite="samcourtney.tech" defines="JUCE_MODAL_LOOPS_PERMITTED=0"
-              pluginCharacteristicsValue="pluginIsSynth,pluginWantsMidiIn">
+              addUsingNamespaceToJuceHeader="0" jucerFormatVersion="1" companyName="SCT"
+              companyWebsite="samcourtney.tech" defines="JUCE_MODAL_LOOPS_PERMITTED=0"
+              pluginCharacteristicsValue="pluginIsSynth,pluginWantsMidiIn"
+              pluginFormats="buildVST3">
   <MAINGROUP id="ccg6OY" name="CGPTxSerum">
     <GROUP id="{517D467F-398D-804E-B57E-F89D46CDD476}" name="Source">
       <FILE id="IA6aWA" name="PluginProcessor.cpp" compile="1" resource="0"
@@ -18,9 +19,10 @@
           file="Source/ChatBarComponent.cpp"/>
     <FILE id="pHi8hK" name="ChatBarComponent.h" compile="0" resource="0"
           file="Source/ChatBarComponent.h"/>
-    <FILE id="Ykt3uh" name="ChatGPTClient.cpp" compile="1" resource="0"
-          file="Source/ChatGPTClient.cpp"/>
-    <FILE id="JttHPF" name="ChatGPTClient.h" compile="0" resource="0" file="Source/ChatGPTClient.h"/>
+    <FILE id="MdO8Dm" name="LoadingComponent.cpp" compile="1" resource="0"
+          file="Source/LoadingComponent.cpp"/>
+    <FILE id="f1ksUJ" name="LoadingComponent.h" compile="0" resource="0"
+          file="Source/LoadingComponent.h"/>
     <FILE id="grqGMS" name="ParameterNormalizer.cpp" compile="1" resource="0"
           file="Source/ParameterNormalizer.cpp"/>
     <FILE id="L9XgI2" name="ParameterNormalizer.h" compile="0" resource="0"

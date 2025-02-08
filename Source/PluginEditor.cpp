@@ -2,14 +2,19 @@
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
 #include <JuceHeader.h>
+#include "LoadingComponent.h"
 
 //==============================================================================
 
 CGPTxSerumAudioProcessorEditor::CGPTxSerumAudioProcessorEditor(CGPTxSerumAudioProcessor& p)
     : AudioProcessorEditor(&p),
     audioProcessor(p),
-    settings(p), chatBar(p) // Pass the processor reference to settings
+    settings(p),
+    chatBar(p),
+    loadingManager(std::make_unique<LoadingScreenManager>(this))
 {
+    setName("CGPTxSerumAudioProcessorEditor");
+
     // Ensure size is set before construction completes
     setSize(902, 760);
 
@@ -51,15 +56,17 @@ CGPTxSerumAudioProcessorEditor::~CGPTxSerumAudioProcessorEditor()
 void CGPTxSerumAudioProcessorEditor::paint(juce::Graphics& g)
 {
     g.fillAll(juce::Colours::black);
-
     g.setColour(juce::Colours::white);
     g.setFont(juce::FontOptions(30.0f));
     g.drawFittedText("ChatGPTxSerum (SC1)", getLocalBounds(), juce::Justification::centred, 1);
+
+    
 }
 
 void CGPTxSerumAudioProcessorEditor::resized()
 {
     tabs.setBounds(getLocalBounds());
+   
 }
 
 //==============================================================================
@@ -76,4 +83,10 @@ void CGPTxSerumAudioProcessorEditor::loadPluginFromSettings(const juce::String& 
     {
         DBG("Invalid plugin path: " + path);
     }
+}
+
+void CGPTxSerumAudioProcessorEditor::showLoadingScreen(bool show)
+{
+    if (loadingManager)
+        loadingManager->showLoadingScreen(show);
 }

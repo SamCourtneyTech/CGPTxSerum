@@ -5,6 +5,7 @@
 #include "ChatBarComponent.h"
 #include "SerumInterfaceComponent.h"
 #include "SettingsComponent.h"
+#include "LoadingComponent.h"
 
 class CGPTxSerumAudioProcessorEditor  : public juce::AudioProcessorEditor
 {
@@ -16,7 +17,18 @@ public:
     void resized() override;
     
 
+    void CGPTxSerumAudioProcessorEditor::showLoadingScreen(bool show);
+    void setLoading(bool loading)
+    {
+        isLoading = loading;
+        if (loadingManager)
+        {
+            loadingManager->showLoadingScreen(loading);
+        }
+    }
 private:
+
+    bool isLoading = false;
     
     CGPTxSerumAudioProcessor& audioProcessor;
 
@@ -27,6 +39,8 @@ private:
     
     SettingsComponent settings;
     void loadPluginFromSettings(const juce::String& path);
+
+    std::unique_ptr<LoadingScreenManager> loadingManager;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (CGPTxSerumAudioProcessorEditor)
 };
