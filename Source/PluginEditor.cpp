@@ -60,6 +60,11 @@ void CGPTxSerumAudioProcessorEditor::paint(juce::Graphics& g)
     g.setFont(juce::FontOptions(30.0f));
     g.drawFittedText("ChatGPTxSerum (SC1)", getLocalBounds(), juce::Justification::centred, 1);
 
+    if (isLoading)  // When loading, show the overlay
+    {
+        loadingManager->showLoadingScreen(true);
+        repaint();  // Force a repaint
+    }
     
 }
 

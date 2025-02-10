@@ -571,8 +571,8 @@ float subShapeToMacro(const std::string& name, const std::string& value) {
 float onToPercentage(const std::string& name, const std::string& value) {
     // Mapping of "on" and "off" values to their corresponding percentages
     static const std::unordered_map<std::string, float> onOffMap = {
-        {"On", 0.50f}, {"ON", 0.50f}, {"on", 0.50f}, {"retrig", 0.50f}, {"link", 0.50f},
-        {"LINK", 0.50f}, {"Link", 0.50f}, {"1", 0.50f},
+        {"On", 0.51f}, {"ON", 0.51f}, {"on", 0.51f}, {"retrig", 0.51f}, {"link", 0.51f},
+        {"LINK", 0.51f}, {"Link", 0.51f}, {"1", 0.51f},
 
         {"Off", 0.00f}, {"off", 0.00f}, {"OFF", 0.00f}, {"Unlink", 0.00f}, {"unlink", 0.00f},
         {"UNLINK", 0.00f}, {"0", 0.00f}
@@ -717,7 +717,7 @@ float degreesToPercentage(const std::string& name, const std::string& value) {
         // Ensure valid range
         if (degrees < 0.0f || degrees > 360.0f) return getRandomFValue();
 
-        // Normalize from 0° - 360° to 0.0f - 1.0f
+        // Normalize from 0Â° - 360Â° to 0.0f - 1.0f
         return degrees / 360.0f;
 
     }

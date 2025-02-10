@@ -7,40 +7,51 @@ public:
     LoadingScreenComponent()
     {
         setAlwaysOnTop(true);
+        customFont = juce::Font("Press Start 2P", 15.0f, juce::Font::plain);
     }
 
     void paint(juce::Graphics& g) override
     {
         g.fillAll(juce::Colours::black.withAlpha(0.7f));
 
-        // Draw loading text
+        // Draw loading text with custom font and lower position
         g.setColour(juce::Colours::white);
-        g.setFont(20.0f);
-        juce::String loadingText = "Processing request...";
-        g.drawText(loadingText, getLocalBounds(), juce::Justification::centred);
+        g.setFont(customFont);
+        juce::String loadingText = "Processing request... (This can take up to a minute)";
 
-        // Draw loading spinner
-        float spinnerSize = 40.0f;
+        auto textBounds = getLocalBounds();
+        int verticalOffset = 0;
+        textBounds.translate(0, verticalOffset);
+
+        g.drawText(loadingText, textBounds, juce::Justification::centred);
+
+        // Draw pixel-style spinning animation - raised higher
         float centerX = getWidth() / 2.0f;
-        float centerY = getHeight() / 2.0f - 30.0f;
-
+        float centerY = getHeight() / 2.0f - 100.0f; // Changed from -30.0f to -80.0f to raise the spinner
         float time = static_cast<float>(juce::Time::getMillisecondCounter()) / 500.0f;
 
-        for (int i = 0; i < 8; ++i)
+        for (int i = 0; i < 4; ++i)
         {
-            float angle = time + i * juce::MathConstants<float>::pi * 0.25f;
-            float alpha = 0.1f + 0.7f * std::abs(std::sin(angle));
-
+            float angle = time + i * juce::MathConstants<float>::pi * 0.5f;
+            float alpha = 0.2f + 0.8f * std::abs(std::sin(angle));
             g.setColour(juce::Colours::white.withAlpha(alpha));
-            float dotSize = 8.0f;
-            float radius = spinnerSize * 0.5f;
-            float x = centerX + radius * std::cos(angle) - dotSize * 0.5f;
-            float y = centerY + radius * std::sin(angle) - dotSize * 0.5f;
-            g.fillEllipse(x, y, dotSize, dotSize);
+
+            float squareSize = 12.0f;
+            float radius = 30.0f;
+            float x = centerX + radius * std::cos(angle) - squareSize * 0.5f;
+            float y = centerY + radius * std::sin(angle) - squareSize * 0.5f;
+
+            x = std::round(x);
+            y = std::round(y);
+
+            g.fillRect(x, y, squareSize, squareSize);
         }
 
         repaint();
     }
+
+private:
+    juce::Font customFont;
 };
 
 class LoadingScreenManager
@@ -49,22 +60,25 @@ public:
     LoadingScreenManager(juce::Component* parent)
         : parentComponent(parent)
     {
-        // Create the loading screen immediately but keep it invisible
-        loadingScreen = std::make_unique<LoadingScreenComponent>();
-        parentComponent->addChildComponent(loadingScreen.get());
-        loadingScreen->setBounds(parentComponent->getLocalBounds());
-        loadingScreen->setVisible(false);
-        loadingScreen->setAlwaysOnTop(true);
     }
 
     void showLoadingScreen(bool show)
     {
-        if (loadingScreen)
+        if (show && loadingScreen == nullptr)
         {
-            loadingScreen->setVisible(show);
-            loadingScreen->toFront(true);  // Force it to the front when showing
-            parentComponent->repaint();     // Repaint the parent
+            loadingScreen = std::make_unique<LoadingScreenComponent>();
+            parentComponent->addAndMakeVisible(loadingScreen.get());
+            loadingScreen->setBounds(parentComponent->getLocalBounds());
+            loadingScreen->setVisible(true);
+            loadingScreen->toFront(true);
         }
+        
+        else if (!show && loadingScreen != nullptr)
+        {
+            loadingScreen->setVisible(false);
+            loadingScreen.reset();
+        }
+        
     }
 
 private:

@@ -18,14 +18,13 @@ public:
     
 
     void CGPTxSerumAudioProcessorEditor::showLoadingScreen(bool show);
+    /*
     void setLoading(bool loading)
     {
         isLoading = loading;
-        if (loadingManager)
-        {
-            loadingManager->showLoadingScreen(loading);
-        }
+        repaint();  // This triggers a new paint cycle
     }
+    */
 private:
 
     bool isLoading = false;

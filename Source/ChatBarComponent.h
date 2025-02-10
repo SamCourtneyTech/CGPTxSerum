@@ -12,7 +12,8 @@ public:
 
     void paint(juce::Graphics&) override;
     void resized() override;
-    std::map<std::string, std::string> sendPromptToChatGPT(const juce::String& userPrompt);  
+    void sendPromptToChatGPT(const juce::String& userPrompt,
+        std::function<void(std::map<std::string, std::string>)> callback);
     void sendAIResponseToProcessor(const std::map<std::string, std::string>& aiResponse);
     
    
