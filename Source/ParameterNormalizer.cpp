@@ -282,7 +282,9 @@ float octToMidi(const std::string& name, const std::string& value) {
     static const std::unordered_map<std::string, float> octToMidiMap = {
         {"-4 Oct", 0.00f}, {"-3 Oct", 0.10f}, {"-2 Oct", 0.20f}, {"-1 Oct", 0.35f},
         {"0 Oct", 0.45f}, {"+1 Oct", 0.60f}, {"+2 Oct", 0.70f}, {"+3 Oct", 0.85f},
-        {"+4 Oct", 1.00f}
+        {"+4 Oct", 1.00f},
+        {"1 Oct", 0.60f}, {"2 Oct", 0.70f}, {"3 Oct", 0.85f},
+        {"4 Oct", 1.00f}
     };
     try {
         auto it = octToMidiMap.find(value);
@@ -302,7 +304,10 @@ float semiToMacro(const std::string& name, const std::string& value) {
         {"0", 0.50f}, {"+1", 0.55f}, {"+2", 0.60f}, {"+3", 0.62f},
         {"+4", 0.65f}, {"+5", 0.70f}, {"+6", 0.75f}, {"+7", 0.80f},
         {"+8", 0.85f}, {"+9", 0.87f}, {"+10", 0.90f}, {"+11", 0.95f},
-        {"+12", 1.00f}
+        {"+12", 1.00f},{"1", 0.55f}, {"2", 0.60f}, {"3", 0.62f},
+        {"4", 0.65f}, {"5", 0.70f}, {"6", 0.75f}, {"7", 0.80f},
+        {"8", 0.85f}, {"9", 0.87f}, {"10", 0.90f}, {"11", 0.95f},
+        {"12", 1.00f}
     };
     try {
         std::string sanitizedValue = value;

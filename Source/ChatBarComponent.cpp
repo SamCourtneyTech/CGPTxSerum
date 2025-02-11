@@ -201,7 +201,7 @@ void ChatBarComponent::sendPromptToChatGPT(const juce::String& userPrompt,
         {
             std::map<std::string, std::string> parameterMap;
             const juce::String apiEndpoint = "https://api.openai.com/v1/chat/completions";
-            const juce::String apiKey = "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";
+            const juce::String apiKey = "X";
             constexpr int MAX_OPENAI_LENGTH = 32000;
             constexpr int CONNECTION_TIMEOUT_MS = 90000; 
             constexpr int READ_TIMEOUT_MS = 90000; 
