@@ -1,6 +1,6 @@
 *.opendb
 JuceLibraryCode/
 Builds/
-ChatGPTClient.cpp
-ChatGPTClient.h
-LoadingComponent.cpp
+src/ChatGPTClient.cpp
+src/ChatGPTClient.h
+src/LoadingComponent.cpp
