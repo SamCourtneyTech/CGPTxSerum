@@ -6,19 +6,12 @@
 #include <cstdlib>
 #include <sstream>
 #include <string>
-// Example lookup tables
-
-const std::vector<float> frequencies = { /* Add your frequency values here */ };
-
-// Parameter normalization lookup (Definition)
-
+const std::vector<float> frequencies = {  };
 float getRandomFValue() {
-    return static_cast<float>(rand()) / static_cast<float>(RAND_MAX); // Returns a value between 0.0f and 1.0f
+    return static_cast<float>(rand()) / static_cast<float>(RAND_MAX); 
 }
-//==========================NORMALIZE VALUE FUNCTION=========================================================
 std::pair<std::string, float> normalizeValue(const std::string& name, const std::string& value) {
-    float normalizedValue = getRandomFValue();  // Default fallback value
-
+    float normalizedValue = getRandomFValue(); 
     try {
         if (name == "Env1 Atk" || name == "Env1 Hold" || name == "Env1 Dec" || name == "Env1 Rel")
             normalizedValue = normalizeMsS(name, value); 
@@ -31,7 +24,7 @@ std::pair<std::string, float> normalizeValue(const std::string& name, const std:
         else if (name == "B WTPos")
             normalizedValue = wtToMidi(name, value);// will need to figure out alternative to this- have chat select custom wavetable???
         else if (name == "A WTPos")
-            normalizedValue = wtToMidi(name, value);// will need to figure out alternative to this- have chat select custom wavetable???
+            normalizedValue = wtToMidi(name, value);
         else if (name == "A Vol")
             normalizedValue = percentageToMacro(name, value); 
         else if (name == "Noise Level" || name == "B Vol" || name == "Sub Osc Level")
@@ -105,7 +98,7 @@ std::pair<std::string, float> normalizeValue(const std::string& name, const std:
         else if (name == "Cmp_Att")
             normalizedValue = cmpAttToPercentage(name, value);
         else if (name == "Cmp_Rel")
-            normalizedValue = cmpRelToPercentage(name, value); // incorrect /////////////// -> configure cmptoRel after bang functionality
+            normalizedValue = cmpRelToPercentage(name, value); 
         else if (name == "CmpGain")
             normalizedValue = cmpGainToPercentage(name, value);
         else if (name == "CmpMBnd")
@@ -118,20 +111,14 @@ std::pair<std::string, float> normalizeValue(const std::string& name, const std:
             normalizedValue = onToPercentage(name, value);
         else if (name == "Decay")
             normalizedValue = decayToF(name, value);
-
         //missing fil pan
         //missing ratio
-
     }
     catch (...) {
-        normalizedValue = getRandomFValue();  // Use fallback if something goes wrong
+        normalizedValue = getRandomFValue();  
     }
-
-    return { name, normalizedValue };  // Return as tuple (paramName, normalizedValue)
+    return { name, normalizedValue };  
 }
-//===========================================================================================================
-
-
 const std::vector<float> serum_ms_values = {
     0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.1, 0.1, 0.2, 0.2, 0.4, 0.5, 0.7, 1.0, 1.4, 1.8, 2.4, 3.1, 4.0,
     5.0, 6.2, 7.7, 9.5, 12, 14, 17, 20, 24, 28, 32, 38, 44, 51, 59, 67, 77, 87, 99, 112, 127, 142, 160, 179, 199,
@@ -141,34 +128,23 @@ const std::vector<float> serum_ms_values = {
     11800, 12400, 13000, 13600, 14200, 14900, 15600, 16300, 17100, 17800, 18600, 19500, 20300, 21200, 22200, 23100,
     24100, 25100, 26200, 27300, 28400, 29600, 30800, 32000
 };
-
 float normalizeMsS(const std::string& name, const std::string& value) {
     std::regex re(R"(([+-]?[0-9]*\.?[0-9]+)\s*(ms|s))");
     std::smatch match;
-
     if (!std::regex_search(value, match, re))
-        return getRandomFValue(); // Fallback if no match
-
+        return getRandomFValue(); 
     float timeValue = std::stof(match[1].str());
     std::string unit = match[2].str();
-
-    // Convert seconds to milliseconds if needed
     if (unit == "s") {
         timeValue *= 1000.0f;
     }
-
-    // Find the closest match in serum_ms_values
     auto it = std::lower_bound(serum_ms_values.begin(), serum_ms_values.end(), timeValue);
     if (it == serum_ms_values.end()) {
-        return 1.0f; // If out of range, return max normalized value
+        return 1.0f; 
     }
-
-    // Normalize the index between 0.0f and 1.0f
     int index = std::distance(serum_ms_values.begin(), it);
     return static_cast<float>(index) / static_cast<float>(serum_ms_values.size() - 1);
 }
-
-// Normalize dB to 0-1 scale
 const std::vector<float> dB_values = {
     -INFINITY, -84.2, -72.1, -65.1, -60.1, -56.2, -53.0, -50.3, -48.0, -46.0, -44.2, -42.5, -41.0,
     -39.6, -38.3, -37.1, -36.0, -34.9, -33.9, -33.0, -32.1, -31.3, -30.5, -29.7, -28.9, -28.2, -27.6,
@@ -180,13 +156,10 @@ const std::vector<float> dB_values = {
     -4.0, -3.8, -3.6, -3.5, -3.3, -3.1, -3.0, -2.8, -2.7, -2.5, -2.3, -2.2, -2.0, -1.9, -1.7, -1.6,
     -1.4, -1.3, -1.1, -1.0, -0.8, -0.7, -0.6, -0.4, -0.3, -0.1, 0.0
 };
-
 float normalizeDbToF(const std::string& name, const std::string& value) {
     std::regex re(R"(([+-]?[0-9]*\.?[0-9]+)\s*dB)");
     std::smatch match;
-
-    float dBValue = -INFINITY; // Default to -inf
-
+    float dBValue = -INFINITY; 
     if (value == "-inf dB") {
         dBValue = -INFINITY;
     }
@@ -194,39 +167,28 @@ float normalizeDbToF(const std::string& name, const std::string& value) {
         dBValue = std::stof(match[1].str());
     }
     else {
-        return getRandomFValue(); // Fallback if parsing fails
+        return getRandomFValue(); 
     }
-
-    // Find the closest match in dB_values
     auto it = std::lower_bound(dB_values.begin(), dB_values.end(), dBValue);
     if (it == dB_values.end()) {
-        return 1.0f; // If out of range, return max normalized value
+        return 1.0f;
     }
-
-    // Normalize the index to a 0.0f - 1.0f scale
     int index = std::distance(dB_values.begin(), it);
     return static_cast<float>(index) / static_cast<float>(dB_values.size() - 1);
 }
-
 float normalizePanToF(const std::string& name, const std::string& value) {
     try {
         float panValue = std::stof(value);
-
-   
         panValue = std::clamp(panValue, -50.0f, 50.0f);
-
         return (panValue + 50.0f) / 100.0f;
     }
     catch (...) {
         return getRandomFValue();  
     }
 }
-
 float choDepthToPercentage(const std::string& name, const std::string& value) {
     try {
-        float msValue = std::stof(value);  // Convert input string to float
-
-        // Map of ms values to percentage (converted to a vector of pairs for interpolation)
+        float msValue = std::stof(value);  
         const std::vector<std::pair<float, float>> msToPercentageMap = {
             {0.0f, 0.0f}, {0.1f, 5.0f}, {0.2f, 8.0f}, {0.3f, 10.0f}, {0.4f, 12.0f}, {0.5f, 14.0f},
             {0.6f, 15.0f}, {0.7f, 16.0f}, {0.8f, 17.0f}, {0.9f, 19.0f}, {1.0f, 20.0f}, {1.1f, 21.0f},
@@ -245,130 +207,94 @@ float choDepthToPercentage(const std::string& name, const std::string& value) {
             {23.0f, 94.0f}, {23.5f, 95.0f}, {24.0f, 96.0f}, {24.5f, 97.0f}, {25.0f, 98.0f}, {25.7f, 99.0f},
             {26.0f, 100.0f}
         };
-
-        // Handle exact match
         for (const auto& pair : msToPercentageMap) {
-            if (msValue == pair.first) return pair.second / 100.0f; // Normalize 0-1
+            if (msValue == pair.first) return pair.second / 100.0f;
         }
-
-        // Find lower and upper bounds for interpolation
         auto upper = std::upper_bound(msToPercentageMap.begin(), msToPercentageMap.end(), msValue,
             [](float val, const std::pair<float, float>& pair) {
                 return val < pair.first;
             });
-
         if (upper == msToPercentageMap.begin()) return msToPercentageMap.front().second / 100.0f;
         if (upper == msToPercentageMap.end()) return msToPercentageMap.back().second / 100.0f;
-
         auto lower = std::prev(upper);
-
-        // Linear interpolation
         float lowerMs = lower->first, lowerPercent = lower->second;
         float upperMs = upper->first, upperPercent = upper->second;
-
         float interpolatedPercentage = lowerPercent + ((msValue - lowerMs) / (upperMs - lowerMs)) * (upperPercent - lowerPercent);
-
-        return std::clamp(interpolatedPercentage / 100.0f, 0.0f, 1.0f); // Normalize to 0-1
+        return std::clamp(interpolatedPercentage / 100.0f, 0.0f, 1.0f); 
     }
     catch (...) {
-        return getRandomFValue();  // Fallback value
+        return getRandomFValue(); 
     }
 }
-
 float wtToMidi(const std::string& name, const std::string& value) {
-    // Mapping of waveform types to normalized values
     static const std::unordered_map<std::string, float> wtToMidiMap = {
         {"1", 14.0f / 100.0f}, {"2", 18.0f / 100.0f}, {"3", 30.0f / 100.0f},
         {"4", 45.0f / 100.0f}, {"5", 59.0f / 100.0f}, {"6", 74.0f / 100.0f},
-        {"7", 100.0f / 100.0f}, // Numerical values normalized
-
+        {"7", 100.0f / 100.0f}, 
         {"Sine", 14.0f / 100.0f}, {"Saw", 18.0f / 100.0f}, {"Triangle", 30.0f / 100.0f},
         {"Square", 45.0f / 100.0f}, {"Pulse", 59.0f / 100.0f}, {"Half Pulse", 74.0f / 100.0f},
-        {"Inv-Phase saw", 100.0f / 100.0f} // Named waveforms normalized
+        {"Inv-Phase saw", 100.0f / 100.0f} 
     };
-
-    // Look up the waveform type in the map
     auto it = wtToMidiMap.find(value);
     if (it != wtToMidiMap.end()) {
-        return it->second; // Return the corresponding normalized value
+        return it->second; 
     }
-
-    return getRandomFValue(); // Return fallback random value if not found
-}// needs to be replaced
-
+    return getRandomFValue(); 
+}
 float percentageToMacro(const std::string& name, const std::string& value) {
     try {
-        // Remove '%' symbol and convert to float
         float percentageValue = std::stof(value.substr(0, value.find('%')));
-
-        // Normalize from 0-100% to 0.0f - 1.0f
         return std::clamp(percentageValue / 100.0f, 0.0f, 1.0f);
     }
     catch (...) {
-        return getRandomFValue(); // Fallback value if parsing fails
+        return getRandomFValue();
     }
 }
-
 float choFeedToMacro(const std::string& name, const std::string& value) {
     try {
-        // Remove '%' symbol and convert to float
         float intensity = std::stof(value.substr(0, value.find('%')));
-
-        // Ensure value is within valid range (0% - 95%)
         if (intensity < 0.0f || intensity > 95.0f)
-            return getRandomFValue(); // Fallback value
-
-        
+            return getRandomFValue(); 
         return std::clamp(intensity / 95.0f, 0.0f, 1.0f);
     }
     catch (...) {
-        return getRandomFValue(); // Fallback if parsing fails
+        return getRandomFValue(); 
     }
 }
-
 float unisonToMacro(const std::string& name, const std::string& value) {
-    // Unison-to-macro mapping (converted to 0.0f - 1.0f)
     static const std::unordered_map<std::string, float> uniToMacroMap = {
         {"1", 0.00f}, {"2", 0.04f}, {"3", 0.11f}, {"4", 0.19f},
         {"5", 0.25f}, {"6", 0.33f}, {"7", 0.37f}, {"8", 0.44f},
         {"9", 0.54f}, {"10", 0.60f}, {"11", 0.65f}, {"12", 0.70f},
         {"13", 0.80f}, {"14", 0.85f}, {"15", 0.90f}, {"16", 1.00f}
     };
-
     try {
         auto it = uniToMacroMap.find(value);
         if (it != uniToMacroMap.end()) {
-            return it->second; // Return mapped value
+            return it->second;
         }
     }
     catch (...) {
-        // Error handling, return a random fallback value
     }
-    return getRandomFValue(); // Fallback if value is not found
+    return getRandomFValue(); 
 }
-
 float octToMidi(const std::string& name, const std::string& value) {
-    // Octave-to-MIDI mapping (converted to 0.0f - 1.0f)
     static const std::unordered_map<std::string, float> octToMidiMap = {
         {"-4 Oct", 0.00f}, {"-3 Oct", 0.10f}, {"-2 Oct", 0.20f}, {"-1 Oct", 0.35f},
         {"0 Oct", 0.45f}, {"+1 Oct", 0.60f}, {"+2 Oct", 0.70f}, {"+3 Oct", 0.85f},
         {"+4 Oct", 1.00f}
     };
-
     try {
         auto it = octToMidiMap.find(value);
         if (it != octToMidiMap.end()) {
-            return it->second; // Return mapped value
+            return it->second; 
         }
     }
     catch (...) {
-        // Error handling, return a random fallback value
     }
-    return getRandomFValue(); // Fallback if value is not found
+    return getRandomFValue();
 }
-
 float semiToMacro(const std::string& name, const std::string& value) {
-    // Semitone-to-Macro mapping (converted to 0.0f - 1.0f)
     static const std::unordered_map<std::string, float> semiToMacroMap = {
         {"-12", 0.00f}, {"-11", 0.03f}, {"-10", 0.07f}, {"-9", 0.11f},
         {"-8", 0.15f}, {"-7", 0.20f}, {"-6", 0.26f}, {"-5", 0.30f},
@@ -378,7 +304,6 @@ float semiToMacro(const std::string& name, const std::string& value) {
         {"+8", 0.85f}, {"+9", 0.87f}, {"+10", 0.90f}, {"+11", 0.95f},
         {"+12", 1.00f}
     };
-
     try {
         std::string sanitizedValue = value;
         sanitizedValue.erase(std::remove(sanitizedValue.begin(), sanitizedValue.end(), ' '), sanitizedValue.end());
@@ -389,21 +314,17 @@ float semiToMacro(const std::string& name, const std::string& value) {
         sanitizedValue.erase(std::remove(sanitizedValue.begin(), sanitizedValue.end(), 't'), sanitizedValue.end());
         sanitizedValue.erase(std::remove(sanitizedValue.begin(), sanitizedValue.end(), 'o'), sanitizedValue.end());
         sanitizedValue.erase(std::remove(sanitizedValue.begin(), sanitizedValue.end(), 'n'), sanitizedValue.end());
-
         auto it = semiToMacroMap.find(sanitizedValue);
         if (it != semiToMacroMap.end()) {
-            return it->second; // Return mapped value
+            return it->second; 
         }
     }
     catch (...) {
-        // Error handling, return a random fallback value
     }
-    return getRandomFValue(); // Fallback if value is not found
+    return getRandomFValue();
 }
-
 float fineToMacro(const std::string& name, const std::string& value) {
     try {
-        // Remove " cents" from the input string
         std::string sanitizedValue = value;
         sanitizedValue.erase(std::remove(sanitizedValue.begin(), sanitizedValue.end(), ' '), sanitizedValue.end());
         sanitizedValue.erase(std::remove(sanitizedValue.begin(), sanitizedValue.end(), 'c'), sanitizedValue.end());
@@ -411,22 +332,16 @@ float fineToMacro(const std::string& name, const std::string& value) {
         sanitizedValue.erase(std::remove(sanitizedValue.begin(), sanitizedValue.end(), 'n'), sanitizedValue.end());
         sanitizedValue.erase(std::remove(sanitizedValue.begin(), sanitizedValue.end(), 't'), sanitizedValue.end());
         sanitizedValue.erase(std::remove(sanitizedValue.begin(), sanitizedValue.end(), 's'), sanitizedValue.end());
-
         int cents = std::stoi(sanitizedValue);
-
-        // Ensure it's within the valid range
         if (cents < -100 || cents > 100)
             return getRandomFValue();
-
         return (cents + 100.0f) / 200.0f;
     }
     catch (...) {
-        return getRandomFValue();  // Return fallback if conversion fails
+        return getRandomFValue();  
     }
 }
-
 float frequencyToPercentage(const std::string& name, const std::string& value) {
-    // Define frequency-to-percentage mapping
     std::vector<std::pair<float, float>> freqPercentageMap = {
         {8, 0.00f}, {9, 0.0079f}, {10, 0.0236f}, {11, 0.0394f}, {12, 0.0472f}, {13, 0.0551f},
         {14, 0.0709f}, {15, 0.0866f}, {17, 0.0945f}, {18, 0.102f}, {20, 0.110f}, {21, 0.118f},
@@ -450,40 +365,29 @@ float frequencyToPercentage(const std::string& name, const std::string& value) {
         {13434, 0.937f}, {14298, 0.945f}, {15216, 0.953f}, {16194, 0.961f}, {17219, 0.969f}, {18326, 0.976f},
         {19503, 0.984f}, {20756, 0.992f}, {22050, 1.000f}
     };
-
     try {
-        // Extract frequency in Hz from the input string
         std::regex re(R"(([+-]?[0-9]*\.?[0-9]+)\s*Hz)");
         std::smatch match;
-
         if (!std::regex_search(value, match, re))
-            return getRandomFValue();  // Fallback if input is invalid
-
+            return getRandomFValue();  
         float frequency = std::stof(match[1].str());
-
-        // Linear interpolation between nearest values in freqPercentageMap
         for (size_t i = 1; i < freqPercentageMap.size(); i++) {
             if (frequency <= freqPercentageMap[i].first) {
                 float f_low = freqPercentageMap[i - 1].first;
                 float f_high = freqPercentageMap[i].first;
                 float p_low = freqPercentageMap[i - 1].second;
                 float p_high = freqPercentageMap[i].second;
-
-                // Linear interpolation formula
                 float interpolatedPercentage = p_low + (p_high - p_low) * ((frequency - f_low) / (f_high - f_low));
                 return std::clamp(interpolatedPercentage, 0.0f, 1.0f);
             }
         }
-
-        return 1.0f;  // If frequency is beyond the range, return 1.0
+        return 1.0f; 
     }
     catch (...) {
-        return getRandomFValue();  // Handle any conversion errors gracefully
+        return getRandomFValue();  
     }
 }
-
 float filterTypeToMacro(const std::string& name, const std::string& value) {
-    // Mapping of filter types to their corresponding normalized values
     static const std::unordered_map<std::string, float> filterPercentages = {
         {"MG Low 6", 0.00f}, {"MG Low 12", 0.0079f}, {"MG Low 18", 0.0236f}, {"MG Low 24", 0.0315f},
         {"Low 6", 0.0394f}, {"Low 12", 0.0551f}, {"Low 18", 0.0630f}, {"Low 24", 0.0709f},
@@ -511,65 +415,50 @@ float filterTypeToMacro(const std::string& name, const std::string& value) {
         {"Dist.Comb 2 LP", 0.969f}, {"Dist.Comb 2 BP", 0.976f}, {"Scream LP", 0.984f},
         {"Scream BP", 1.000f}
     };
-
-    // Lookup the filter name and return the mapped percentage
     auto it = filterPercentages.find(value);
     if (it != filterPercentages.end()) {
         return it->second;
     }
-
-    return getRandomFValue(); // Return fallback value if not found
+    return getRandomFValue(); 
 }
 
 float distortionTypeToMacro(const std::string& name, const std::string& value) {
-    // Mapping of distortion types to their corresponding normalized values
     static const std::unordered_map<std::string, float> distortionPercentages = {
         {"Tube", 0.00f}, {"SoftClip", 0.0394f}, {"HardClip", 0.102f}, {"Diode 1", 0.173f},
         {"Diode 2", 0.236f}, {"Lin.Fold", 0.307f}, {"Sin Fold", 0.370f}, {"Zero-Square", 0.441f},
         {"Downsample", 0.504f}, {"Asym", 0.567f}, {"Rectify", 0.638f}, {"X-Shaper", 0.701f},
         {"X-Shaper (Asym)", 0.772f}, {"Sine Shaper", 0.835f}, {"Stomp Box", 0.906f}, {"Tape Stop.", 1.000f}
     };
-
-    // Lookup the distortion type and return the mapped percentage
     auto it = distortionPercentages.find(value);
     if (it != distortionPercentages.end()) {
         return it->second;
     }
-
-    return getRandomFValue(); // Return fallback value if not found
+    return getRandomFValue(); 
 }
-
 float uniblendToF(const std::string& name, const std::string& value) {
     try {
         float blendValue = std::stof(value);
         if (blendValue < 0.0f || blendValue > 100.0f) {
-            return getRandomFValue(); // Fallback if out of expected range
+            return getRandomFValue(); 
         }
-        return blendValue / 100.0f; // Normalize to 0.0f - 1.0f
+        return blendValue / 100.0f; 
     }
     catch (...) {
-        return getRandomFValue(); // Fallback for invalid inputs
+        return getRandomFValue();
     }
 }
-
 float subShapeToMacro(const std::string& name, const std::string& value) {
-    // Mapping of sub oscillator shapes to their corresponding normalized values
     static const std::unordered_map<std::string, float> subOscShapePercentages = {
         {"Sine", 0.00f}, {"RoundRect", 0.12f}, {"Triangle", 0.32f},
         {"Saw", 0.52f}, {"Square", 0.75f}, {"Pulse", 1.00f}
     };
-
-    // Lookup the sub oscillator shape and return the mapped percentage
     auto it = subOscShapePercentages.find(value);
     if (it != subOscShapePercentages.end()) {
         return it->second;
     }
-
-    return getRandomFValue(); // Return fallback value if not found
+    return getRandomFValue(); 
 }
-
 float onToPercentage(const std::string& name, const std::string& value) {
-    // Mapping of "on" and "off" values to their corresponding percentages
     static const std::unordered_map<std::string, float> onOffMap = {
         {"On", 0.51f}, {"ON", 0.51f}, {"on", 0.51f}, {"retrig", 0.51f}, {"link", 0.51f},
         {"LINK", 0.51f}, {"Link", 0.51f}, {"1", 0.51f},
@@ -577,82 +466,61 @@ float onToPercentage(const std::string& name, const std::string& value) {
         {"Off", 0.00f}, {"off", 0.00f}, {"OFF", 0.00f}, {"Unlink", 0.00f}, {"unlink", 0.00f},
         {"UNLINK", 0.00f}, {"0", 0.00f}
     };
-
-    // Check if the value exists in the map
     auto it = onOffMap.find(value);
     if (it != onOffMap.end()) {
         return it->second;
     }
-
-    // Try converting the value to an integer
     try {
         int intValue = std::stoi(value);
         return intValue == 1 ? 0.50f : 0.00f;
     }
     catch (...) {
-        return getRandomFValue(); // Return fallback if input is invalid
+        return getRandomFValue(); 
     }
 }
 
 float hypUnisonToMacro(const std::string& name, const std::string& value) {
-    // Dictionary mapping 0-7 to evenly spaced values in 0.0f - 1.0f
- 
     static const std::unordered_map<int, float> hypUnisonMap = {
         {0, 0.00f},  {1, 0.14f}, {2, 0.28f}, {3, 0.42f},
         {4, 0.56f},  {5, 0.70f}, {6, 0.85f}, {7, 1.00f}
     };
-
     try {
-        int intValue = std::stoi(value);  // Convert input string to integer
-
-        // Return mapped value if in range, otherwise return fallback value
+        int intValue = std::stoi(value);  
         auto it = hypUnisonMap.find(intValue);
         return (it != hypUnisonMap.end()) ? it->second : getRandomFValue();
     }
     catch (...) {
-        return getRandomFValue();  // Return fallback if input is invalid
+        return getRandomFValue(); 
     }
 }
-
 float uniDetToMacro(const std::string& name, const std::string& value) {
     try {
-        float intensity = std::stof(value);  // Convert string to float
-
-        // Ensure value is within range
+        float intensity = std::stof(value); 
         if (intensity < 0.0f || intensity > 1.0f)
             return getRandomFValue();
-
-        // Apply square root transformation and normalize to 0.0f - 1.0f
         return std::sqrt(intensity);
     }
     catch (...) {
-        return getRandomFValue();  // Return fallback if input is invalid
+        return getRandomFValue(); 
     }
 }
-
 float distPrePostToMacro(const std::string& name, const std::string& value) {
     static const std::unordered_map<std::string, float> settings = {
         {"Off", 0.08f}, {"off", 0.08f}, {"OFF", 0.08f}, {"0", 0.0f},
         {"Pre", 0.35f}, {"pre", 0.35f}, {"PRE", 0.35f},
         {"Post", 1.00f}, {"post", 1.00f}, {"POST", 1.00f}
     };
-
     auto it = settings.find(value);
     if (it != settings.end()) {
         return it->second;
     }
-
-    return getRandomFValue(); // Return fallback if input is invalid
+    return getRandomFValue(); 
 }
-
 float distBwToPercentage(const std::string& name, const std::string& value) {
     try {
         float inputValue = std::stof(value); 
-
         if (inputValue < 0.1f) return 0.0f;
         if (inputValue > 7.6f) return 1.0f;
-
-
         if (inputValue <= 0.5f)
             return (10.0f + (inputValue - 0.1f) / (0.5f - 0.1f) * (25.0f - 10.0f)) / 100.0f;
         else if (inputValue <= 1.9f)
@@ -665,23 +533,16 @@ float distBwToPercentage(const std::string& name, const std::string& value) {
             return (68.9f + (inputValue - 3.6f) / (4.3f - 3.6f) * (75.0f - 68.9f)) / 100.0f;
         else if (inputValue <= 7.6f)
             return (75.0f + (inputValue - 4.3f) / (7.6f - 4.3f) * (100.0f - 75.0f)) / 100.0f;
-
     }
     catch (...) {
-        return getRandomFValue(); // Fallback for invalid inputs
+        return getRandomFValue();
     }
-
-    return getRandomFValue(); // Catch-all fallback
+    return getRandomFValue(); 
 }
-
-//untested from here
 float phaseRateToMacro(const std::string& name, const std::string& value) {
     try {
-        float rate = std::stof(value); // Convert input string to float
-
+        float rate = std::stof(value); 
         if (rate < 0.0f || rate > 20.0f) return getRandomFValue();
-
-        // Piecewise interpolation
         if (rate <= 0.03f)
             return (rate / 0.03f) * 0.20f;
         else if (rate <= 0.16f)
@@ -700,33 +561,22 @@ float phaseRateToMacro(const std::string& name, const std::string& value) {
             return (0.80f + (rate - 8.19f) / (13.12f - 8.19f) * (0.90f - 0.80f));
         else if (rate <= 20.0f)
             return (0.90f + (rate - 13.12f) / (20.0f - 13.12f) * (1.00f - 0.90f));
-
     }
     catch (...) {
-        return getRandomFValue(); // Fallback for invalid inputs
+        return getRandomFValue(); 
     }
-
-    return getRandomFValue(); // Catch-all fallback
+    return getRandomFValue();
 }
-
 float degreesToPercentage(const std::string& name, const std::string& value) {
     try {
-        // Remove "deg." if present and convert to float
         float degrees = std::stof(value);
-
-        // Ensure valid range
         if (degrees < 0.0f || degrees > 360.0f) return getRandomFValue();
-
-        // Normalize from 0° - 360° to 0.0f - 1.0f
         return degrees / 360.0f;
-
     }
     catch (...) {
-        return getRandomFValue(); // Fallback for invalid input
+        return getRandomFValue(); 
     }
 }
-
-
 float choDlyToPercentage(const std::string& name, const std::string& value) {
     try {
         float msValue = std::stof(value);
@@ -753,19 +603,15 @@ float choDlyToPercentage(const std::string& name, const std::string& value) {
             return 0.8f + ((msValue - 12.8f) / (16.2f - 12.8f)) * (0.9f - 0.8f);
         else
             return 0.9f + ((msValue - 16.2f) / (20.0f - 16.2f)) * (1.0f - 0.9f);
-
     }
     catch (...) {
         return getRandomFValue();
     }
 }
-
 float choDepToPercentage(const std::string& name, const std::string& value) {
     try {
         float msValue = std::stof(value);
-
         if (msValue < 0.0f || msValue > 26.0f) return getRandomFValue();
-
         if (msValue <= 0.3f)
             return (msValue / 0.3f) * 0.1f;
         else if (msValue <= 1.0f)
@@ -786,19 +632,15 @@ float choDepToPercentage(const std::string& name, const std::string& value) {
             return 0.8f + ((msValue - 16.6f) / (21.1f - 16.6f)) * (0.9f - 0.8f);
         else
             return 0.9f + ((msValue - 21.1f) / (26.0f - 21.1f)) * (1.0f - 0.9f);
-
     }
     catch (...) {
         return getRandomFValue();
     }
 }
-
 float choFiltToPercentage(const std::string& name, const std::string& value) {
     try {
         float freq = std::stof(value);
-
         if (freq < 50.0f || freq > 20000.0f) return getRandomFValue();
-
         if (freq <= 91.0f)
             return (freq - 50.0f) / (91.0f - 50.0f) * 0.1f;
         else if (freq <= 166.0f)
@@ -819,20 +661,16 @@ float choFiltToPercentage(const std::string& name, const std::string& value) {
             return 0.8f + ((freq - 6034.0f) / (10986.0f - 6034.0f)) * (0.9f - 0.8f);
         else
             return 0.9f + ((freq - 10986.0f) / (20000.0f - 10986.0f)) * (1.0f - 0.9f);
-
     }
     catch (...) {
         return getRandomFValue();
     }
 }
-
 float distFreqToPercentage(const std::string& name, const std::string& value) {
     try {
         float freq = std::stof(value);
-
         if (freq < 8.0f) return 0.0f;
         if (freq > 13290.0f) return 1.0f;
-
         if (freq <= 17.0f)
             return (freq - 8.0f) / (17.0f - 8.0f) * 0.1f;
         else if (freq <= 36.0f)
@@ -853,20 +691,16 @@ float distFreqToPercentage(const std::string& name, const std::string& value) {
             return 0.8f + ((freq - 3030.0f) / (6346.0f - 3030.0f)) * (0.9f - 0.8f);
         else
             return 0.9f + ((freq - 6346.0f) / (13290.0f - 6346.0f)) * (1.0f - 0.9f);
-
     }
     catch (...) {
         return getRandomFValue();
     }
 }
-
 float dlyFreqToPercentage(const std::string& name, const std::string& value) {
     try {
         float freq = std::stof(value);
-
         if (freq < 40.0f) return 0.0f;
         if (freq > 18000.0f) return 1.0f;
-
         if (freq <= 74.0f)
             return (freq - 40.0f) / (74.0f - 40.0f) * 0.1f;
         else if (freq <= 136.0f)
@@ -887,20 +721,16 @@ float dlyFreqToPercentage(const std::string& name, const std::string& value) {
             return 0.8f + ((freq - 5304.0f) / (9771.0f - 5304.0f)) * (0.9f - 0.8f);
         else
             return 0.9f + ((freq - 9771.0f) / (18000.0f - 9771.0f)) * (1.0f - 0.9f);
-
     }
     catch (...) {
         return getRandomFValue();
     }
 }
-
 float phsFrqToPercentage(const std::string& name, const std::string& value) {
     try {
         float freq = std::stof(value);
-
         if (freq < 20.0f) return 0.0f;
         if (freq > 18000.0f) return 1.0f;
-
         if (freq <= 39.0f)
             return (freq - 20.0f) / (39.0f - 20.0f) * 0.1f;
         else if (freq <= 77.0f)
@@ -921,20 +751,16 @@ float phsFrqToPercentage(const std::string& name, const std::string& value) {
             return 0.8f + ((freq - 4617.0f) / (9116.0f - 4617.0f)) * (0.9f - 0.8f);
         else
             return 0.9f + ((freq - 9116.0f) / (18000.0f - 9116.0f)) * (1.0f - 0.9f);
-
     }
     catch (...) {
         return getRandomFValue();
     }
 }
-
 float EQfrqToPercentage(const std::string& name, const std::string& value) {
     try {
         float freq = std::stof(value);
-
         if (freq < 22.0f) return 0.0f;
         if (freq > 20000.0f) return 1.0f;
-
         if (freq <= 43.0f)
             return (freq - 22.0f) / (43.0f - 22.0f) * 0.1f;
         else if (freq <= 84.0f)
@@ -955,20 +781,16 @@ float EQfrqToPercentage(const std::string& name, const std::string& value) {
             return 0.8f + ((freq - 5099.0f) / (10098.0f - 5099.0f)) * (0.9f - 0.8f);
         else
             return 0.9f + ((freq - 10098.0f) / (20000.0f - 10098.0f)) * (1.0f - 0.9f);
-
     }
     catch (...) {
         return getRandomFValue();
     }
 }
-
 float dlyBwToPercentage(const std::string& name, const std::string& value) {
     try {
         float val = std::stof(value);
-
         if (val < 0.8f) return 0.0f;
         if (val > 8.2f) return 1.0f;
-
         if (val <= 1.5f)
             return (val - 0.8f) / (1.5f - 0.8f) * 0.1f;
         else if (val <= 2.2f)
@@ -989,13 +811,11 @@ float dlyBwToPercentage(const std::string& name, const std::string& value) {
             return 0.8f + ((val - 6.8f) / (7.5f - 6.8f)) * (0.9f - 0.8f);
         else
             return 0.9f + ((val - 7.5f) / (8.2f - 7.5f)) * (1.0f - 0.9f);
-
     }
     catch (...) {
         return getRandomFValue();
     }
 }
-
 float dlyModeToPercentage(const std::string& name, const std::string& value) {
     static const std::unordered_map<std::string, float> dlyModeMap = {
         {"Normal", 0.18f}, {"0", 0.18f}, {"normal", 0.18f}, {"NORMAL", 0.18f},
@@ -1004,44 +824,34 @@ float dlyModeToPercentage(const std::string& name, const std::string& value) {
         {"Tap->Delay", 0.80f}, {"2", 0.80f}, {"tapdelay", 0.80f},
         {"TapDelay", 0.80f}, {"tap delay", 0.80f}, {"Tap Delay", 0.80f}
     };
-
     auto it = dlyModeMap.find(value);
     if (it != dlyModeMap.end()) {
         return it->second;
     }
-
-    return getRandomFValue(); // Fallback value
+    return getRandomFValue(); 
 }
-
 float delayTimeToPercentage(const std::string& name, const std::string& value) {
     static const std::unordered_map<std::string, float> beatMappings = {
         {"fast", 0.0f}, {"1/256", 0.0709f}, {"1/128", 0.197f}, {"1/64", 0.252f},
         {"1/32", 0.346f}, {"1/16", 0.480f}, {"1/8", 0.551f}, {"1/4", 0.606f},
         {"1/2", 0.764f}, {"Bar", 0.780f}, {"2 Bar", 0.890f}, {"4 Bar", 1.000f}
     };
-
-    // Check if value is a known beat division
     auto it = beatMappings.find(value);
     if (it != beatMappings.end())
         return it->second;
-
-    // Try parsing as a numerical value (milliseconds)
     float delayTime;
     try {
         std::string valueStr = value;
-        valueStr.erase(std::remove(valueStr.begin(), valueStr.end(), 'm'), valueStr.end()); // Remove "ms" if present
+        valueStr.erase(std::remove(valueStr.begin(), valueStr.end(), 'm'), valueStr.end()); 
         std::stringstream ss(valueStr);
         ss >> delayTime;
-        if (ss.fail()) return getRandomFValue(); // Handle invalid conversion
+        if (ss.fail()) return getRandomFValue(); 
     }
     catch (...) {
         return getRandomFValue();
     }
-
-    // Piecewise interpolation for delay times (1.0ms to 501.0ms)
     if (delayTime < 1.0f) return 0.0f;
     if (delayTime > 501.0f) return 1.0f;
-
     if (1.0f <= delayTime && delayTime <= 1.05f)
         return (delayTime - 1.0f) / (1.05f - 1.0f) * 0.1f;
     else if (1.05f < delayTime && delayTime <= 1.8f)
@@ -1062,30 +872,22 @@ float delayTimeToPercentage(const std::string& name, const std::string& value) {
         return 0.8f + (delayTime - 205.8f) / (329.05f - 205.8f) * (0.9f - 0.8f);
     else if (329.05f < delayTime && delayTime <= 501.0f)
         return 0.9f + (delayTime - 329.05f) / (501.0f - 329.05f) * (1.0f - 0.9f);
-
     return getRandomFValue();
 }
-
 float cmpThrToPercentage(const std::string& name, const std::string& value) {
     float threshold;
-
-    // Remove " dB" if present and convert to float
     try {
         std::string valueStr = value;
-        valueStr.erase(std::remove(valueStr.begin(), valueStr.end(), 'd'), valueStr.end()); // Remove "dB"
+        valueStr.erase(std::remove(valueStr.begin(), valueStr.end(), 'd'), valueStr.end()); 
         std::stringstream ss(valueStr);
         ss >> threshold;
-        if (ss.fail()) return getRandomFValue(); // Handle invalid conversion
+        if (ss.fail()) return getRandomFValue(); 
     }
     catch (...) {
         return getRandomFValue();
     }
-
-    // Bounds checking
     if (threshold > 0.0f) return 0.0f;
     if (threshold < -120.0f) return 1.0f;
-
-    // Piecewise interpolation for compressor threshold (dB)
     if (-120.0f <= threshold && threshold <= -60.0f)
         return 0.9f + (threshold + 60.0f) / (-120.0f + 60.0f) * (1.0f - 0.9f);
     else if (-60.0f < threshold && threshold <= -41.9f)
@@ -1106,18 +908,13 @@ float cmpThrToPercentage(const std::string& name, const std::string& value) {
         return 0.1f + (threshold + 2.7f) / (-5.8f + 2.7f) * (0.2f - 0.1f);
     else if (-2.7f < threshold && threshold <= 0.0f)
         return (threshold / -2.7f) * 0.1f;
-
     return getRandomFValue();
 }
-
 float cmpAttToPercentage(const std::string& name, const std::string& value) {
     try {
-        float attack_time = std::stof(value); // Convert string to float
-
+        float attack_time = std::stof(value); 
         if (attack_time < 0.1f) return 0.0f;
-        if (attack_time > 1000.0f) return 1.0f; // Normalize to 0.0 - 1.0 range
-
-        // Piecewise interpolation
+        if (attack_time > 1000.0f) return 1.0f; 
         if (attack_time <= 10.1f)
             return (attack_time - 0.1f) / (10.1f - 0.1f) * 0.1f;
         else if (attack_time <= 40.1f)
@@ -1138,23 +935,18 @@ float cmpAttToPercentage(const std::string& name, const std::string& value) {
             return 0.8f + (attack_time - 640.0f) / (810.0f - 640.0f) * 0.1f;
         else if (attack_time <= 1000.0f)
             return 0.9f + (attack_time - 810.0f) / (1000.0f - 810.0f) * 0.1f;
-
     }
     catch (...) {
-        return getRandomFValue(); // Fallback if conversion fails
+        return getRandomFValue();
     }
 
-    return getRandomFValue(); // Default fallback
+    return getRandomFValue();
 }
-
 float cmpGainToPercentage(const std::string& name, const std::string& value) {
     try {
-        float gain = std::stof(value); // Convert string to float
-
+        float gain = std::stof(value);
         if (gain < 0.0f) return 0.0f;
-        if (gain > 30.1f) return 1.0f; // Normalize to 0.0 - 1.0 range
-
-        // Piecewise interpolation
+        if (gain > 30.1f) return 1.0f; 
         if (gain <= 2.3f)
             return (gain / 2.3f) * 0.1f;
         else if (gain <= 7.0f)
@@ -1175,15 +967,12 @@ float cmpGainToPercentage(const std::string& name, const std::string& value) {
             return 0.8f + (gain - 26.4f) / (28.3f - 26.4f) * 0.1f;
         else if (gain <= 30.1f)
             return 0.9f + (gain - 28.3f) / (30.1f - 28.3f) * 0.1f;
-
     }
     catch (...) {
-        return getRandomFValue(); // Fallback if conversion fails
+        return getRandomFValue();
     }
-
-    return getRandomFValue(); // Default fallback
+    return getRandomFValue(); 
 }
-
 float CmpMBndToPercentage(const std::string& name, const std::string& value) {
     static const std::unordered_map<std::string, float> mapping = {
         {"Multiband", 1.0f}, {"multiband", 1.0f}, {"mb", 1.0f},
@@ -1191,113 +980,76 @@ float CmpMBndToPercentage(const std::string& name, const std::string& value) {
         {"1", 1.0f}, {"Normal", 0.0f}, {"normal", 0.0f},
         {"NORMAL", 0.0f}, {"0", 0.0f}
     };
-
     auto it = mapping.find(value);
     if (it != mapping.end()) {
         return it->second;
     }
-
-    return getRandomFValue(); // Return a fallback random value if input is not recognized
+    return getRandomFValue();
 }
-
 float eqVolToPercentage(const std::string& name, const std::string& value) {
     try {
-        float gain = std::stof(value.substr(0, value.find(" dB"))); // Extract numeric value
-
+        float gain = std::stof(value.substr(0, value.find(" dB"))); 
         if (gain < -24.0f) return 0.0f;
         if (gain > 24.0f) return 1.0f;
-
-        return (gain + 24.0f) / 48.0f; // Normalize to 0.0f - 1.0f
+        return (gain + 24.0f) / 48.0f; 
     }
     catch (...) {
-        return getRandomFValue(); // Return fallback value if conversion fails
+        return getRandomFValue(); 
     }
 }
-
 float eqTypToPercentage(const std::string& name, const std::string& value) {
     static const std::unordered_map<std::string, float> eqTypeMap = {
         {"Shelf", 0.18f}, {"shelf", 0.18f}, {"0", 0.18f},
         {"Peak", 0.30f}, {"peak", 0.30f}, {"PEAK", 0.30f}, {"1", 0.30f},
         {"LPF", 0.80f}, {"LP", 0.80f}, {"lpf", 0.80f}, {"lowpass", 0.80f}, {"Lpf", 0.80f}, {"2", 0.80f}
     };
-
     auto it = eqTypeMap.find(value);
     if (it != eqTypeMap.end()) {
         return it->second;
     }
-
     return getRandomFValue();
 }
-
 float decayToF(const std::string& name, const std::string& value) {
     try {
         std::string trimmedValue = value;
         if (trimmedValue.find(" s") != std::string::npos) {
-            trimmedValue.erase(trimmedValue.find(" s"), 2); // Remove " s"
+            trimmedValue.erase(trimmedValue.find(" s"), 2); 
         }
-
         float decayValue = std::stof(trimmedValue);
         if (decayValue < 0.8f || decayValue > 12.0f) {
-            return getRandomFValue(); // Fallback if out of expected range
+            return getRandomFValue(); 
         }
-
-        return (decayValue - 0.8f) / (12.0f - 0.8f); // Normalize to 0.0f - 1.0f
+        return (decayValue - 0.8f) / (12.0f - 0.8f);
     }
     catch (...) {
-        return getRandomFValue(); // Fallback for invalid inputs
+        return getRandomFValue(); 
     }
 }
-
-
-
-
-
-
-
-
 //might not need
-
-
-
-// Normalize percentages to 0-1 scale
 float normalizePercentage(const std::string& name, const std::string& value) {
     std::regex re(R"(([+-]?[0-9]*\.?[0-9]+)\s*%)");
     std::smatch match;
-
     if (!std::regex_search(value, match, re))
-        return static_cast<float>(rand() % 100) / 100.0f; // Fallback random percentage
-
+        return static_cast<float>(rand() % 100) / 100.0f;
     float number = std::stof(match[1].str());
     return std::clamp(number / 100.0f, 0.0f, 1.0f);
 }
-
-// Normalize Hz to 0-1 range
 float normalizeFrequency(const std::string& name, const std::string& value) {
     std::regex re(R"(([+-]?[0-9]*\.?[0-9]+)\s*Hz)");
     std::smatch match;
-
     if (!std::regex_search(value, match, re))
-        return static_cast<float>(rand() % 127) / 127.0f; // Fallback random value
-
+        return static_cast<float>(rand() % 127) / 127.0f; 
     float number = std::stof(match[1].str());
     auto it = std::lower_bound(frequencies.begin(), frequencies.end(), number);
     int index = std::distance(frequencies.begin(), it);
     return std::clamp(static_cast<float>(index) / 127.0f, 0.0f, 1.0f);
 }
-
 float unisonToMidi(const std::string& name, const std::string& value) {
-    // TODO: Implement normalization logic
     return 0.0f;
 }
-
-
 float octToMacro(const std::string& name, const std::string& value) {
-    // TODO: Implement normalization logic
     return 0.0f;
 }
-
-
 float cmpRelToPercentage(const std::string& name, const std::string& value) {
-    // TODO: Implement normalization logic
     return 0.0f;
 }

@@ -1,18 +1,10 @@
 #pragma once
 #ifndef PARAMETER_NORMALIZER_H
 #define PARAMETER_NORMALIZER_H
-
 #include <string>
 #include <unordered_map>
 #include <functional>
-
-//===============
 std::pair<std::string, float> normalizeValue(const std::string& paramName, const std::string& rawValue);
-
-//===============
-
-
-// Function declarations
 float normalizeMsS(const std::string& name, const std::string& value);
 float normalizeDbToF(const std::string& name, const std::string& value);
 float normalizePanToF(const std::string& name, const std::string& value);
@@ -35,9 +27,6 @@ float hypUnisonToMacro(const std::string& name, const std::string& value);
 float uniDetToMacro(const std::string& name, const std::string& value);
 float distPrePostToMacro(const std::string& name, const std::string& value);
 float distBwToPercentage(const std::string& name, const std::string& value);
-
-
-
 float phaseRateToMacro(const std::string& name, const std::string& value);
 float degreesToPercentage(const std::string& name, const std::string& value);
 float choDlyToPercentage(const std::string& name, const std::string& value);
@@ -58,18 +47,8 @@ float CmpMBndToPercentage(const std::string& name, const std::string& value);
 float eqVolToPercentage(const std::string& name, const std::string& value);
 float eqTypToPercentage(const std::string& name, const std::string& value);
 float decayToF(const std::string& name, const std::string& value);
-
-
 float normalizePercentage(const std::string& name, const std::string& value);
 float normalizeFrequency(const std::string& name, const std::string& value);
-
-
 float octToMacro(const std::string& name, const std::string& value);
-
-
-
-float getRandomFValue();  // Fallback function
-
-
-
-#endif // PARAMETER_NORMALIZER_H
+float getRandomFValue();  
+#endif 
