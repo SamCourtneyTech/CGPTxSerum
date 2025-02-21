@@ -5,7 +5,7 @@ public:
     void drawButtonText(juce::Graphics& g, juce::TextButton& button,
         bool /*isMouseOverButton*/, bool /*isButtonDown*/) override
     {
-        auto font = juce::Font("Press Start 2P", 10.0f, juce::Font::plain); // Settings-specific font
+        auto font = juce::Font("Press Start 2P", 10.0f, juce::Font::plain); 
         g.setFont(font);
         g.setColour(button.findColour(juce::TextButton::textColourOffId));
         g.drawFittedText(button.getButtonText(), button.getLocalBounds(),

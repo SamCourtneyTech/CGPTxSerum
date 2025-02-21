@@ -212,6 +212,45 @@ void CGPTxSerumAudioProcessor::getStateInformation (juce::MemoryBlock& destData)
 {
 }
 
+void CGPTxSerumAudioProcessor::setResponses(const std::vector<std::map<std::string, std::string>>& newResponses)
+{
+    juce::ScopedLock lock(responseLock);
+    responses = newResponses;
+    currentResponseIndex = 0; // Reset to first response
+    if (!responses.empty())
+        applyPresetToSerum(responses[currentResponseIndex]); // Apply first response immediately
+}
+
+void CGPTxSerumAudioProcessor::applyResponseAtIndex(int index)
+{
+    juce::ScopedLock lock(responseLock);
+    if (index >= 0 && index < responses.size())
+    {
+        currentResponseIndex = index;
+        applyPresetToSerum(responses[currentResponseIndex]);
+    }
+}
+
+void CGPTxSerumAudioProcessor::nextResponse()
+{
+    juce::ScopedLock lock(responseLock);
+    if (currentResponseIndex < responses.size() - 1)
+    {
+        currentResponseIndex++;
+        applyPresetToSerum(responses[currentResponseIndex]);
+    }
+}
+
+void CGPTxSerumAudioProcessor::previousResponse()
+{
+    juce::ScopedLock lock(responseLock);
+    if (currentResponseIndex > 0)
+    {
+        currentResponseIndex--;
+        applyPresetToSerum(responses[currentResponseIndex]);
+    }
+}
+
 void CGPTxSerumAudioProcessor::setStateInformation (const void* data, int sizeInBytes)
 {
 }

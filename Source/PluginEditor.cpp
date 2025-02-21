@@ -11,7 +11,7 @@ CGPTxSerumAudioProcessorEditor::CGPTxSerumAudioProcessorEditor(CGPTxSerumAudioPr
     loadingManager(std::make_unique<LoadingScreenManager>(this))
 {
     setName("CGPTxSerumAudioProcessorEditor");
-    setSize(902, 760);
+    setSize(902, 800);
     tabs.addTab("ChatGPT", juce::Colours::transparentBlack, &chatBar, false);
     tabs.addTab("Serum", juce::Colours::transparentBlack, &audioProcessor.getSerumInterface(), false);
     tabs.addTab("Settings", juce::Colours::transparentBlack, &settings, false);

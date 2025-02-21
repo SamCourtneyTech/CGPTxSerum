@@ -1,15 +1,34 @@
 #include "SerumInterfaceComponent.h"
 #include <juce_audio_processors/juce_audio_processors.h>
-void SerumInterfaceComponent::paint(juce::Graphics& g)
+#include "PluginProcessor.h" 
+class SerumButtonLookAndFeel : public juce::LookAndFeel_V4
 {
-    g.fillAll(juce::Colours::black);
-    g.setColour(juce::Colours::white); 
-    g.setFont(juce::Font("Press Start 2P", 12.0f, juce::Font::plain));
-    g.drawText("Serum.vst3 not detected-Check the plugin path in the settings tab.", getLocalBounds(), juce::Justification::centred, true);
-}
+public:
+    void drawButtonText(juce::Graphics& g, juce::TextButton& button,
+        bool /*isMouseOverButton*/, bool /*isButtonDown*/) override
+    {
+        auto font = juce::Font("Press Start 2P", 10.0f, juce::Font::plain); 
+        g.setFont(font);
+        g.setColour(button.findColour(juce::TextButton::textColourOffId));
+        g.drawFittedText(button.getButtonText(), button.getLocalBounds(),
+            juce::Justification::centred, 1);
+    }
+    void drawButtonBackground(juce::Graphics& g, juce::Button& button,
+        const juce::Colour& backgroundColour,
+        bool isMouseOverButton, bool isButtonDown) override
+    {
+        auto bounds = button.getLocalBounds().toFloat();
+        juce::Colour fillColour = isButtonDown ? juce::Colours::darkgrey
+            : isMouseOverButton ? juce::Colours::lightgrey
+            : backgroundColour;
+        g.setColour(fillColour);
+        g.fillRect(bounds);
+    }
+};
 SerumInterfaceComponent::SerumInterfaceComponent(juce::AudioProcessor& processor)
     : parentProcessor(processor)
 {
+    static SerumButtonLookAndFeel customSerumButtons;
     formatManager.addDefaultFormats();
     DBG("Plugin format added: " << formatManager.getFormat(0)->getName());
     juce::AudioProcessor::BusesLayout layout;
@@ -18,12 +37,60 @@ SerumInterfaceComponent::SerumInterfaceComponent(juce::AudioProcessor& processor
         DBG("Unsupported bus layout");
         return;
     }
+    addAndMakeVisible(nextButton);
+    addAndMakeVisible(prevButton);
+    addAndMakeVisible(responseCounter);
+    nextButton.setButtonText("Next");
+    nextButton.setColour(juce::TextButton::buttonColourId, juce::Colours::black);
+    nextButton.setColour(juce::TextButton::textColourOnId, juce::Colours::whitesmoke);
+    nextButton.setColour(juce::TextButton::textColourOffId, juce::Colours::white);
+    nextButton.setLookAndFeel(&customSerumButtons);
+    prevButton.setButtonText("Previous");
+    prevButton.setColour(juce::TextButton::buttonColourId, juce::Colours::black);
+    prevButton.setColour(juce::TextButton::textColourOnId, juce::Colours::whitesmoke);
+    prevButton.setColour(juce::TextButton::textColourOffId, juce::Colours::white);
+    prevButton.setLookAndFeel(&customSerumButtons);
+    responseCounter.setJustificationType(juce::Justification::centred);
+    responseCounter.setFont(juce::Font("Press Start 2P", 12.0f, juce::Font::plain));
+    responseCounter.setColour(juce::Label::textColourId, juce::Colours::white);
+    responseCounter.setColour(juce::Label::backgroundColourId, juce::Colours::black);
+    nextButton.onClick = [this]() {
+        if (auto* proc = dynamic_cast<CGPTxSerumAudioProcessor*>(&parentProcessor))
+        {
+            proc->nextResponse();
+            updateResponseCounter();
+        }
+        };
+
+    prevButton.onClick = [this]() {
+        if (auto* proc = dynamic_cast<CGPTxSerumAudioProcessor*>(&parentProcessor))
+        {
+            proc->previousResponse();
+            updateResponseCounter();
+        }
+        };
+
+    responseCounter.setJustificationType(juce::Justification::centred);
+    responseCounter.setFont(juce::Font("Press Start 2P", 12.0f, juce::Font::plain));
+    updateResponseCounter(); 
 }
+
 SerumInterfaceComponent::~SerumInterfaceComponent()
 {
     const juce::ScopedLock lock(criticalSection); 
     serumEditor = nullptr; 
     serumInstance = nullptr;
+}
+void SerumInterfaceComponent::paint(juce::Graphics& g)
+{
+    g.fillAll(juce::Colours::black);
+    if (!serumInstance)
+    {
+        g.setColour(juce::Colours::white);
+        g.setFont(juce::Font("Press Start 2P", 12.0f, juce::Font::plain));
+        g.drawText("Serum.vst3 not detected-Check the plugin path in the settings tab.",
+            getLocalBounds(), juce::Justification::centred, true);
+    }
 }
 void SerumInterfaceComponent::setPluginInstance(juce::AudioPluginInstance* newPlugin)
 {
@@ -216,12 +283,54 @@ void SerumInterfaceComponent::loadSerum(const juce::File& pluginPath)
 }
 void SerumInterfaceComponent::resized()
 {
-    const juce::ScopedLock lock(criticalSection); 
+    const juce::ScopedLock lock(criticalSection);
+    auto bounds = getLocalBounds();
     if (serumEditor != nullptr)
     {
-        serumEditor->setBounds(getLocalBounds()); 
+        serumEditor->setBounds(getLocalBounds());
+    }
+    const int buttonWidth = 100;
+    const int buttonHeight = 30;
+    const int counterWidth = 100;
+    const int spacing = 10;
+    const int margin = 10;
+    int totalWidth = buttonWidth * 2 + counterWidth + spacing * 2;
+    int controlsY = bounds.getHeight() - buttonHeight - margin;
+    int controlsX = (bounds.getWidth() - totalWidth) / 2;
+    prevButton.setBounds(controlsX, controlsY, buttonWidth, buttonHeight);
+    responseCounter.setBounds(controlsX + buttonWidth + spacing, controlsY, counterWidth, buttonHeight);
+    nextButton.setBounds(controlsX + buttonWidth + counterWidth + spacing * 2, controlsY, buttonWidth, buttonHeight);
+
+}
+
+void SerumInterfaceComponent::updateResponseCounter()
+{
+    if (auto* proc = dynamic_cast<CGPTxSerumAudioProcessor*>(&parentProcessor))
+    {
+        int currentIndex = proc->getCurrentResponseIndex();
+        int responseCount = proc->getResponseCount();
+        if (responseCount <= 0)
+        {
+            responseCounter.setText("0/0", juce::dontSendNotification);
+            DBG("No responses available, setting counter to 0/0");
+            return;
+        }
+        if (currentIndex < 0 || currentIndex >= responseCount)
+        {
+            currentIndex = 0; 
+            DBG("Warning: Invalid currentIndex, resetting to 0");
+        }
+        juce::String text = juce::String(currentIndex + 1) + "/" + juce::String(responseCount);
+        responseCounter.setText(text, juce::dontSendNotification);
+        DBG("Response counter updated: " << text);
+    }
+    else
+    {
+        responseCounter.setText("0/0", juce::dontSendNotification);
+        DBG("Warning: Failed to cast processor to CGPTxSerumAudioProcessor!");
     }
 }
+
 bool SerumInterfaceComponent::isBusesLayoutSupported(const juce::AudioProcessor::BusesLayout& layouts) const
 {
     const auto& mainOutput = layouts.getMainOutputChannelSet();

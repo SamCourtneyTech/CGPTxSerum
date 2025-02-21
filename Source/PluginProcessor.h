@@ -33,6 +33,12 @@ public:
     SerumInterfaceComponent& getSerumInterface() { return serumInterface; }
     void setSerumPath(const juce::String& newPath);
     void applyPresetToSerum(const std::map<std::string, std::string>& ChatResponse);
+    void setResponses(const std::vector<std::map<std::string, std::string>>& newResponses); 
+    void applyResponseAtIndex(int index); 
+    void nextResponse(); 
+    void previousResponse();
+    int getCurrentResponseIndex() const { return currentResponseIndex; } 
+    int getResponseCount() const { return responses.size(); } 
 private:
     std::map<std::string, int> parameterMap;
     void enumerateParameters();
@@ -41,5 +47,8 @@ private:
     SerumInterfaceComponent serumInterface;
     SettingsComponent settingsComponent;
     juce::String serumPluginPath = "C:/Program Files/Common Files/VST3/Serum.vst3"; 
+    std::vector<std::map<std::string, std::string>> responses; 
+    int currentResponseIndex = 0; 
+    juce::CriticalSection responseLock;
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (CGPTxSerumAudioProcessor)
 };
