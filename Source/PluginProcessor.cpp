@@ -91,7 +91,6 @@ void CGPTxSerumAudioProcessor::prepareToPlay(double sampleRate, int samplesPerBl
         DBG("Failed to load Serum from stored path.");
     }
     enumerateParameters(); 
-    //listSerumParameters();
 }
 void CGPTxSerumAudioProcessor::enumerateParameters()
 {
@@ -135,6 +134,7 @@ float CGPTxSerumAudioProcessor::parseValue(const std::string& value)
 }
 void CGPTxSerumAudioProcessor::applyPresetToSerum(const std::map<std::string, std::string>& ChatResponse)
 {
+    //listSerumParameters();
     auto* serum = getSerumInstance();
     if (!serum) return;
     for (const auto& param : ChatResponse) 
@@ -147,6 +147,7 @@ void CGPTxSerumAudioProcessor::applyPresetToSerum(const std::map<std::string, st
     {
         onPresetApplied();
     }
+    
 }
 void CGPTxSerumAudioProcessor::setSerumPath(const juce::String& newPath)
 {
@@ -216,9 +217,9 @@ void CGPTxSerumAudioProcessor::setResponses(const std::vector<std::map<std::stri
 {
     juce::ScopedLock lock(responseLock);
     responses = newResponses;
-    currentResponseIndex = 0; // Reset to first response
+    currentResponseIndex = 0; 
     if (!responses.empty())
-        applyPresetToSerum(responses[currentResponseIndex]); // Apply first response immediately
+        applyPresetToSerum(responses[currentResponseIndex]);
 }
 
 void CGPTxSerumAudioProcessor::applyResponseAtIndex(int index)
@@ -257,4 +258,21 @@ void CGPTxSerumAudioProcessor::setStateInformation (const void* data, int sizeIn
 juce::AudioProcessor* JUCE_CALLTYPE createPluginFilter()
 {
     return new CGPTxSerumAudioProcessor();
+}
+void CGPTxSerumAudioProcessor::listSerumParameters()
+{
+    auto* serum = getSerumInstance();
+    if (serum == nullptr)
+    {
+        DBG("Serum instance not loaded.");
+        return;
+    }
+    int numParams = serum->getNumParameters();
+    DBG("Listing Serum Parameters (" << numParams << " total):");
+    for (int i = 0; i < numParams; ++i)
+    {
+        juce::String paramName = serum->getParameterName(i);
+        float paramValue = serum->getParameter(i);
+        DBG("[" << i << "] " << paramName << " = " << paramValue);
+    }
 }

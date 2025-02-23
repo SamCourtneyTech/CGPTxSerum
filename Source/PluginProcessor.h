@@ -20,7 +20,7 @@ public:
     bool producesMidi() const override;
     bool isMidiEffect() const override;
     double getTailLengthSeconds() const override;
-    //void CGPTxSerumAudioProcessor::listSerumParameters();
+    void CGPTxSerumAudioProcessor::listSerumParameters();
     std::function<void()> onPresetApplied;
     int getNumPrograms() override;
     int getCurrentProgram() override;
